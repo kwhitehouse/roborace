@@ -27,7 +27,7 @@ public:
         x_min = numeric_limits<double>::max();
         y_min = numeric_limits<double>::max();
 
-        for(int i = 0; i < coords.size(); ++i ){
+        for(int i = 0; i < (int) coords.size(); ++i ){
             if(coords[i].get(0) < x_min ){
                 x_min = coords[i].get(0);
             }
