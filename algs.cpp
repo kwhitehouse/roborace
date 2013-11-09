@@ -70,8 +70,13 @@ void algs::growObstacles(vector<Polygon*> &obstacles)
 //   obstacles:  A reduced representation of the same polygons
 //				 by only the vertices of importance, i.e the
 //				 covex hull of each polygon.
+//
+// Algorithm modified from: 
+// http://en.wikibooks.org/wiki/Algorithm_Implementation/Geometry/Convex_hull/Monotone_chain
+
 void algs::replaceWithConvexHulls(vector<Polygon*> &obstacles)
 {
+
     
     //Create vector of polygon* to save convex hull of obstacles
 	vector< Polygon* > newObstacles;
@@ -131,7 +136,7 @@ double algs::cross(coord &p, coord &q, coord &r){
 // variables curr_pos and goal, determine which hulls/polygons 
 // are no longer of importance and can be disregarded from this
 // point in the journey forward
-// Inputs:
+// Inputs
 //   obstacles:  Covex hulls of all obstacles in the course
 // Outputs:
 //   obstacles:  A recuded vector of Polygons containing only 
