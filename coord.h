@@ -1,6 +1,6 @@
 
-#ifndef COORD_H_
-#define COORD_H_
+#ifndef _COORD_H_
+#define _COORD_H_
 
 #include <cassert>
 #include <iostream>
@@ -48,6 +48,9 @@ inline bool operator==(const coord& lhs, const coord& rhs){
     return false;
 }
 
+inline bool operator!=(const coord& lhs, const coord& rhs){
+    return !(lhs == rhs);
+}
 
 inline double coord::operator[]
 (const int i) const
