@@ -1,28 +1,27 @@
+
 #include <iostream>
 #include <fstream>
-
 #include "Parser.h"
 #include "Polygon.h"
 #include "coord.h"
+#include <sstream>
 
 using namespace std;
 
 void Parser::parseObstacles (
         const char *file,
-        Polygon &boundary,
+        Polygon* &boundary,
         vector< Polygon * > &obstacles)
 {
 
     ifstream in(file);
     char buffer[129];
-    
     int num_obs = 0; // keep track of how many obstacles we read in
     int line = 2;
-
     if(in.good()){
         in.getline(buffer,128);
         buffer[in.gcount()] = 0;
-        istringstream iss(buffer);
+        std::istringstream iss(buffer);
         iss >> num_obs;
     }
 
@@ -40,9 +39,8 @@ void Parser::parseObstacles (
             iss >> num_coords;
             ++line;
         }
-
         vector<coord> coords;
-        for(int i = 0; i < num_coords; ++line; ++i){
+        for(int i = 0; i < num_coords; ++i){
             if(in.good()){
                 in.getline(buffer,128);
                 buffer[in.gcount()] = 0;
@@ -50,28 +48,29 @@ void Parser::parseObstacles (
 
                 double x, y;
                 iss >> x >> y;
-                coords.push_back(new coord(x,y));
+                coords.push_back(*new coord(x,y));
             }
             else{
                 cerr << "problem reading coordinate at line " << line << endl;
             }
+            ++line;
         }
 
         if(obs == 0){ // grab boundary
-            boundary = new Polygon(0, coords);
+            boundary = new Polygon(coords);
         }
         else{ // grab obstacles
             obstacles.push_back(new Polygon(coords));
         }
-    }
 
+    }
     in.close();
 }
 
 void Parser::parseStartGoal (
         const char *file,
-        coord &start,
-        coord &goal)
+        coord* &start,
+        coord* &goal)
 {
 
     ifstream in(file);
@@ -87,7 +86,7 @@ void Parser::parseStartGoal (
 
     in.getline(buffer,128);
     buffer[in.gcount()] = 0;
-    istringstream iss(buffer);
+//    iss(buffer);
     iss >> x >> y;
     goal = new coord(x,y);
 

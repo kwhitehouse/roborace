@@ -1,28 +1,26 @@
-#ifndef PARSER_H
-#define PARSER_H
+#ifndef __PARSER_H__
+#define __PARSER_H__
 
 #include <iostream>
 #include <vector>
 
-class coord;
 class Polygon;
-
-using namespace std;
+class coord;
 
 //
 // Basic parser for the text files:
 //
 class Parser {
 public:
-    virtual void parseObstacles (
+    void parseObstacles (
             const char *file,
-            Polygon *boundary,
-            vector< Polygon * > &obstacles);
+            Polygon* &boundary,
+            std::vector< Polygon * > &obstacles);
     
-    virtual void parseStartGoal (
+    void parseStartGoal (
             const char *file,
-            coord &start,
-            coord &goal);
+            coord* &start,
+            coord* &goal);
 };
 
 #endif

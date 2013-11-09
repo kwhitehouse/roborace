@@ -3,7 +3,8 @@
 #include "coord.h"
 #include "Parser.h"
 #include "Polygon.h"
-#include "algs.h"
+#include "Parser.cpp"
+// #include "algs.h"
 #include <time.h>
 
 using namespace std;
@@ -20,48 +21,49 @@ int main (int argc, const char * argv[])
     time(&timer);  /* get current time */
 
     Polygon *boundary;
-    vector< Polygon* > *obstacles;
+    vector< Polygon* > obstacles;
     Parser parser;
     parser.parseObstacles(argv[1], boundary, obstacles);
 
-    coord start, goal;
+    coord *start;
+    coord *goal;
     parser.parseStartGoal(argv[2], start, goal);
     assert(start != 0 && goal != 0); 
-    vector< Polygon* > *orig_obs = obstacles;
+    vector< Polygon* > orig_obs = obstacles;
 
-    algs code = new algs(start, goal);
-    code.growObstacles(obstacles);
-    code.replaceWithConvexHulls(obstacles);
+    // algs code = new algs(start, goal);
+    // code.growObstacles(obstacles);
+    // code.replaceWithConvexHulls(obstacles);
 
-    vector<coord> path;
-    coord curr_pos = start;
-    int map_num = -1;
-    bool bump_hit = false;
-    bool visual_hit = false;
-    double angle = 0;
-    double dist = 0;
+    // vector<coord> path;
+    // coord curr_pos = start;
+    // int map_num = -1;
+    // bool bump_hit = false;
+    // bool visual_hit = false;
+    // double angle = 0;
+    // double dist = 0;
 
-    while(curr_pos != goal){ //assumes goal is reachable
+    // while(curr_pos != goal){ //assumes goal is reachable
 
-        //determine path
-        code.removeHullsPassed(obstacles);
-        code.dijkstra(obstacles, path);
-        code.renderVisibilityGraph(++map_num, path, boundary, orig_obs, obstacles);
+    //     //determine path
+    //     code.removeHullsPassed(obstacles);
+    //     code.dijkstra(obstacles, path);
+    //     code.renderVisibilityGraph(++map_num, path, boundary, orig_obs, obstacles);
 
-        while(curr_pos != goal){
-            //determine step distance or angle turn
-            code.pathPlan(path, angle, dist); //removes passed coords // replaces curr with goal on finish
-            //send command to roomba
-            ????????send
-            //wait and listen for roomba reply when finished
-            ???????receive
-            //////interpret reply for camera image and bump sensors
-            ??????interpret
-            if(bump_hit || visual_hit){
-                break;
-            }
-        }
-    }
+    //     while(curr_pos != goal){
+    //         //determine step distance or angle turn
+    //         code.pathPlan(path, angle, dist); //removes passed coords // replaces curr with goal on finish
+    //         //send command to roomba
+    //         ????????send
+    //         //wait and listen for roomba reply when finished
+    //         ???????receive
+    //         //////interpret reply for camera image and bump sensors
+    //         ??????interpret
+    //         if(bump_hit || visual_hit){
+    //             break;
+    //         }
+    //     }
+    // }
 
     double seconds = difftime(time(NULL),timer);
     cout << "Goal achieved at time: " << seconds << endl;

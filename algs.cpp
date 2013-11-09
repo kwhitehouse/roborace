@@ -1,10 +1,9 @@
 
 #include "algs.h"
-#include <vector>
-#include <map>
 #include "coord.h"
 #include "Parser.h"
 #include "Polygon.h"
+#include <math.h>
 
 //All functions have have access to:
 //--// coord goal;
@@ -24,6 +23,8 @@
 //   			 polygon accounting for their growth regions
 void algs::growObstacles(vector<Polygon*> &obstacles)
 {
+    
+    
     //Growing dimensions
     double radius = 0.34306/2;
 	double dx = radius;
@@ -39,25 +40,24 @@ void algs::growObstacles(vector<Polygon*> &obstacles)
 	for(it = obstacles.begin(); it != obstacles.end(); ++it) {
 		
         //create pointer to current polygon's vector of coordinates
-        vector<coord>* cset = &(**it).coords_;
-        
-        //Get size of old coordSet
-        int len = cset.size();
-		//vector<coord> c = (**it).coords_;
-        
-		//iterate through each polygon coordinate
-		for(int  i = 0; i < len; ++i){
+        vector<coord> cset = (*it)->coords_;
+
+        vector<coord>::iterator iter_vertices;
+        for(iter_vertices = cset.begin(); iter_vertices != cset.end(); ++ iter_vertices){
 			//get x coord, y coord
-			double x = cset[i].get(0);
-			double y = cset[i].get(1);
+			double x = iter_vertices->get(0);
+			double y = iter_vertices->get(1);
+            
 			//create new coordinate + push back onto coordSet
-			cset.push_back(*new coord(x + dx, y + dy));
+			cset.push_back(coord(x + dx, y + dy));
 		}
 		//push new coord set to new Obstacles.
 		//newObstacles.push_back(new Polygon(coordSet));
 	}
 	//set obstacles pointer to newObstacles memory location
 	//obstacles = newObstacles;
+     
+     
 }
 
 // Removes unesseary coordinates from vector of polygons (obstacles)
@@ -87,8 +87,8 @@ void algs::replaceWithConvexHulls(vector<Polygon*> &obstacles)
 	for( it = obstacles.begin(); it != obstacles.end(); ++it) {
 		
         //create new coordinate set which will hold hull coordinates
-		vector<coord> points = (**it).getCoordSet();
-		int n = points.size();
+		vector<coord> points = (*it)->coords_;
+		int n = (int)points.size();
 		int k = 0;
 		vector<coord> hull(2*n);
         
@@ -102,7 +102,7 @@ void algs::replaceWithConvexHulls(vector<Polygon*> &obstacles)
 		}
         
 		//build upper hull
-		for(int i = n-2, t = k+1; i >= n; i--){
+		for(int i = n - 2, t = k+1; i >= n; i--){
 			while(k >= t && cross( hull[k-2], hull[k-1], points[i]) <= 0) k--;
 			hull[k++] = points[i];
 		}
@@ -114,6 +114,8 @@ void algs::replaceWithConvexHulls(vector<Polygon*> &obstacles)
 	}
     //set obstacles pointer to newObstacles memory location
 	obstacles = newObstacles;
+     
+     
     
 }
 
@@ -125,11 +127,8 @@ void algs::replaceWithConvexHulls(vector<Polygon*> &obstacles)
 //	if pqr = clockwise turn: double > 0
 //	if pqr = colinear : double = -
 double algs::cross(coord &p, coord &q, coord &r){
-    
 	return (q.get(0) - p.get(0))*(r.get(1) - \
         p.get(1)) - (r.get(0) - p.get(0))*(q.get(0)-p.get(0));
-	
-    
 }
 
 // Given the vector of polygons (obstacles) and the member
@@ -147,69 +146,116 @@ void algs::removeHullsPassed(vector<Polygon*> &obstacles)
 	//code goes here
 }
 
-bool sortByAngles(std::pair<coord, double> pair1, std::pair<coord, double> pair2)
+bool sortByAngles(std::pair<coord, std::pair<double, double>> pair1, std::pair<coord, std::pair<double,double>> pair2)
 {
-    return pair1->second < pair2->second;
+    //if angles are the same, evaluate by distance
+    if(pair1.second.first == pair2.second.first)
+        return pair1.second.second < pair2.second.second;
+    
+    //angles are not the same, use them for sorting comparison
+    return pair1.second.first < pair2.second.first;
 }
-bool sortByDistances(std::pair<edge, double> pair1, std::pair<edge, double> pair2)
+bool sortByDistances(std::pair<std::pair<coord, coord>, double> pair1, std::pair<std::pair<coord, coord>, double> pair2)
 {
-    return pair1->second < pair2->second;
+    return pair1.second < pair2.second;
 }
+
+/*
+ Input: a set of disjoint polygonal obstacles
+ Output: the visibility graph -- map from each vertex to all vertices visible from that vertex
+ */
+map<coord, vector<coord>> algs::visibilityGraph(const vector<Polygon *> &obstacles)
+{
+    map<coord, vector<coord>> visibility_graph;
+    vector<Polygon *>::const_iterator iter_obstacles;
+    for(iter_obstacles = obstacles.begin(); iter_obstacles != obstacles.end(); ++iter_obstacles){
+        
+        vector<coord> vertices = (*iter_obstacles)->coords_;
+        vector<coord>::iterator iter_vertices;
+        for(iter_vertices = vertices.begin(); iter_vertices != vertices.end(); ++iter_vertices){
+            
+            vector<coord> visible_points = visibleVertices(*iter_vertices, obstacles);
+            visibility_graph[*iter_vertices] = visible_points;
+        }
+        
+    }
+    return visibility_graph;
+}
+
 
 /*
  Input: a set of obstacles and a point
  Output: the set of obstacle vertices visible from the given point
  */
-map<coord, vector<coord>> algs::visibleVertices(const coord &point, const vector<Polygon*> &obstacles)
+vector<coord> algs::visibleVertices(const coord &point, const vector<Polygon*> &obstacles)
 {
     
-    vector<Polygon *>::iterator iter_obstacles;
-    vector<coord>::iterator iter_obstacles;
-    vertices<edge>::iterator iter_edges;
-    vector<pair<coord, double>>::iter_angles;
+    vector<Polygon *>::const_iterator iter_obstacles;
+    vector<coord>::iterator iter_vertices;
+    vector<pair<coord, pair<double, double>>>::iterator iter_angles;
+    
     
     //create map with keys = obstacle vertices, values = clockwise angle that the half-line from point to each vertex makes with the positive x-axis
-    vector<pair<coord, double>> vertices_angles;
-    for(iter_obstacles = obstacles.start(); iter_obstacles != obstacles.end(); ++iter_obstacles){
-        vertices<coord> vertices = (*iter_obstacles)->coord_;
-        for(iter_vertices = vertices.start(); iter_vertices != vertices.end(); ++iter_vertices){
-            //compute angle between point and vertices
-            double angle = atan2(iter_vertices->xy_[1] - point.xy[1], iter_vertices->xy_[0] - point.xy[0]) - atan2(point.xy_[1], point.xy_[0] + 1);
-            vertices_angles.push_back(std::make_pair(*iter_vertices, angle));
-        }
-    }
-    
-    //sort the obstacle vertices according to their angle. in the case of ties, vertices closer to point should come before vertices farther from point.
-    std::sort(vertices_angles.begin(), vertices_angles.end(), &sortByAngles);
+    vector<pair<coord, pair<double, double>>> vertices_angles;
     
     //find obstacle edges intersected by half-line extending from point and store in tree
-    vector<<pair<edge, double>> intersecting_edges;
-    for(iter_obstacles = obstacles.start(); iter_obstacles != obstacles.end(); ++iter_obstacles){
-        vertices<edge> edges = (*iter_obstacles)->edges_;
-        for(iter_edges = edges.begin(); iter_edges != edges.end() ++ iter_edges){
-            if(iter_edges->intersectsPointPositiveHalfLine(point)){
-                double distance = iter_edges->distanceFromPoint(point);
-                intersecting_edges.push_back(std::make_pair(*iter_edges, distance));
-            }
+    vector<pair< pair<coord, coord>, double>> intersecting_edges;
+    
+    for(iter_obstacles = obstacles.begin(); iter_obstacles != obstacles.end(); ++iter_obstacles){
+        vector<coord> vertices = (*iter_obstacles)->coords_;
+        for(iter_vertices = vertices.begin(); iter_vertices != vertices.end(); ++iter_vertices){
+            //compute angle between point and vertices
+            double angle = atan2(iter_vertices->xy_[1] - point.xy_[1], iter_vertices->xy_[0] - point.xy_[0]) - atan2(point.xy_[1], point.xy_[0] + 1);
+            double distance = sqrt(pow(iter_vertices->xy_[1] - point.xy_[1], 2.0) + pow(iter_vertices->xy_[0] - point.xy_[0], 2.0));
+            vertices_angles.push_back(std::make_pair(*iter_vertices, std::make_pair(angle, distance)));
+        }
+        
+        //check for half-line intersection
+        for(int i = 0; i < vertices.size(); ++i){
+            
+            //do check here
+            /*
+            point.xy_[0]
+            point.xy_[1]
+            
+            vertices[i].xy_[0]
+            vertices[i].xy_[1]
+            
+            vertices[(i + 1)%vertices.size()].xy_[0]
+            vertices[(i + 1)%vertices.size()].xy_[1]
+             */
+            
+            //push into map if edge intersects half-line
+            //intersecting_edges.push_back(std::make_pair(std::make_pair(vertices[i], vertices[(i + 1)%vertices.size()]), distance));
         }
     }
+
+    //sort the obstacle vertices according to their angle. in the case of ties, vertices closer to point should come before vertices farther from point.
+    std::sort(vertices_angles.begin(), vertices_angles.end(), &algs::sortByAngles);
+    
     
     //sort the intersected edges in order in which they are interesected by half-line
-    std::sort(intersecting_edges.begin(), intersecting_edges.end(), &sortByDistances);
+    std::sort(intersecting_edges.begin(), intersecting_edges.end(), &algs::sortByDistances);
     
     //loop through sorted list of vertices, adding vertices to list of visible vertices if visible, while managing obstacle edges
     vector<coord> visible_vertices;
-    for(iter_angles = vertices_angles.start(); iter_angles != vertices_angles.end(); ++iter_angles){
-        if(visible(iter_angles->first, intersecting_edges)){
+    for(iter_angles = vertices_angles.begin(); iter_angles != vertices_angles.end(); ++iter_angles){
+        if(visible(iter_angles->first)){
             visible_vertices.push_back(iter_angles->first);
-            
-            intersecting_edges
-            intersecting_edges
         }
+        //insert obstacle edges incident to iter_angles->first that line on clockwise side of half-line
+        //intersecting_edges
+        //delte obstace edges incident to iter_angles->first that lie on counterclockwise side of half-line
+        //intersecting_edges
     }
     
-    
+    return visible_vertices;
   
+}
+
+bool algs::visible(const coord &vertex)
+{
+    return true;
 }
 
 // Using the coords present in each Polygon within obstacles, the
@@ -228,7 +274,7 @@ map<coord, vector<coord>> algs::visibleVertices(const coord &point, const vector
 //				 to perform optimally during RoboRace2013
 void algs::dijkstra(vector<Polygon*> &obstacles, vector<coord> &path)
 {
-    
+    /*
     vector<coord> queue;
     determineReachableCoords(source, obstacles, queue);
     std::map<coord, bool> visited;
@@ -237,12 +283,11 @@ void algs::dijkstra(vector<Polygon*> &obstacles, vector<coord> &path)
         coord = queue.pop_back();
         
     }
-    
-    
 	vector<Polygon *>::iterator iter_obstacles;
     for(iter_obstacles = obstacles.start(); iter_obstacles != obstacles.end(); ++iter_obstacles){
 
     }
+     */
 }
 
 // Given the curr_pos of the roomba and the path by which to follow
