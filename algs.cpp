@@ -59,52 +59,92 @@ void algs::removeHullsPassed(vector<Polygon*> &obstacles)
 	//code goes here
 }
 
-bool sortByAngles(std::pair<coord, double> pair1, std::pair<coord, double> pair2)
+bool sortByAngles(std::pair<coord, std::pair<double, double>> pair1, std::pair<coord, std::pair<double,double>> pair2)
 {
-    return pair1->second < pair2->second;
+    //if angles are the same, evaluate by distance
+    if(pair1->second->first == pair2->second->first)
+        return pair1->second->second < pair2->second->second;
+    
+    //angles are not the same, use them for sorting comparison
+    return pair1->second->first < pair2->second->first;
 }
-bool sortByDistances(std::pair<edge, double> pair1, std::pair<edge, double> pair2)
+bool sortByDistances(std::pair<std::pair<coord, coord>, double> pair1, std::pair<std::pair<coord, coord>, double> pair2)
 {
     return pair1->second < pair2->second;
 }
 
 /*
+ Input: a set of disjoint polygonal obstacles
+ Output: the visibility graph -- map from each vertex to all vertices visible from that vertex
+ */
+map<coord, vector<coord>> algs::visibilityGraph(const vector<Polygon *> &obstacles)
+{
+    map<coord, vector<coord>> visibility_graph;
+    vector<Polygon *>::iterator iter_obstacles;
+    for(iter_obstacles = obstacles.begin(); iter_obstacles != obstacles.end(); ++iter_obstacles){
+        
+        vector<coord> vertices = (*iter_obstacles)->coord_;
+        vector<coord>::iterator iter_vertices;
+        for(iter_vertices = vertices.begin(); iter_vertices != vertices.end(); ++iter_vertices){
+            
+            visible = visibleVertices(*iter_vertices, obstacles)
+            visibility_graph.push_back(std::make_pair(*iter_vertices, visible));
+        }
+        
+    }
+    
+}
+
+
+/*
  Input: a set of obstacles and a point
  Output: the set of obstacle vertices visible from the given point
  */
-map<coord, vector<coord>> algs::visibleVertices(const coord &point, const vector<Polygon*> &obstacles)
+vector<coord> algs::visibleVertices(const coord &point, const vector<Polygon*> &obstacles)
 {
     
     vector<Polygon *>::iterator iter_obstacles;
-    vector<coord>::iterator iter_obstacles;
-    vertices<edge>::iterator iter_edges;
+    vector<coord>::iterator iter_vertices;
     vector<pair<coord, double>>::iter_angles;
     
+    
+    
     //create map with keys = obstacle vertices, values = clockwise angle that the half-line from point to each vertex makes with the positive x-axis
-    vector<pair<coord, double>> vertices_angles;
+    vector<pair<coord, pair<double, double>>> vertices_angles;
+    
+    //find obstacle edges intersected by half-line extending from point and store in tree
+    vector<<pair<pair<coord, coord>, double>> intersecting_edges;
+    
     for(iter_obstacles = obstacles.start(); iter_obstacles != obstacles.end(); ++iter_obstacles){
         vertices<coord> vertices = (*iter_obstacles)->coord_;
         for(iter_vertices = vertices.start(); iter_vertices != vertices.end(); ++iter_vertices){
             //compute angle between point and vertices
-            double angle = atan2(iter_vertices->xy_[1] - point.xy[1], iter_vertices->xy_[0] - point.xy[0]) - atan2(point.xy_[1], point.xy_[0] + 1);
-            vertices_angles.push_back(std::make_pair(*iter_vertices, angle));
+            double angle = atan2(iter_vertices->xy_[1] - point.xy_[1], iter_vertices->xy_[0] - point.xy_[0]) - atan2(point.xy_[1], point.xy_[0] + 1);
+            double distance = sqrt((iter_vertices->xy_[1] - point.xy_[1])^2 + (iter_vertices->xy_[0] - point.xy_[0])^2);
+            vertices_angles.push_back(std::make_pair(*iter_vertices, std::make_pair<angle, distance)));
+            
+        }
+        
+        //check for half-line intersection
+        for(int i = 0; i < vertices.size(); ++i){
+            
+            point.xy_[0]
+            point.xy_[1]
+            
+            vertices[i].xy_[0]
+            vertices[i].xy_[1]
+            
+            vertices[(i + 1)%vertices.size()].xy_[0]
+            vertices[(i + 1)%vertices.size()].xy_[1]
+            
+            //push into map if edge intersects half-line
+            intersecting_edges.push_back(std::make_pair(std::make_pair(vertices[i], vertices[(i + 1)%vertices.size()]), distance));
         }
     }
-    
+
     //sort the obstacle vertices according to their angle. in the case of ties, vertices closer to point should come before vertices farther from point.
     std::sort(vertices_angles.begin(), vertices_angles.end(), &sortByAngles);
     
-    //find obstacle edges intersected by half-line extending from point and store in tree
-    vector<<pair<edge, double>> intersecting_edges;
-    for(iter_obstacles = obstacles.start(); iter_obstacles != obstacles.end(); ++iter_obstacles){
-        vertices<edge> edges = (*iter_obstacles)->edges_;
-        for(iter_edges = edges.begin(); iter_edges != edges.end() ++ iter_edges){
-            if(iter_edges->intersectsPointPositiveHalfLine(point)){
-                double distance = iter_edges->distanceFromPoint(point);
-                intersecting_edges.push_back(std::make_pair(*iter_edges, distance));
-            }
-        }
-    }
     
     //sort the intersected edges in order in which they are interesected by half-line
     std::sort(intersecting_edges.begin(), intersecting_edges.end(), &sortByDistances);
