@@ -11,3 +11,6 @@
 *.lai
 *.la
 *.a
+
+#Random xcode file#
+*.1

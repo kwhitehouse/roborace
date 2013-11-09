@@ -24,8 +24,40 @@
 //   			 polygon accounting for their growth regions
 void algs::growObstacles(vector<Polygon*> &obstacles)
 {
-	//Emily
-	//code goes here
+    //Growing dimensions
+    double radius = 0.34306/2;
+	double dx = radius;
+	double dy = radius;
+    
+    //iterator for polygons
+	std::vector<Polygon*>::iterator it;
+
+    //New obstacle vector
+	vector< Polygon* > newObstacles;
+	
+    //iterate through all polygons
+	for(it = obstacles.begin(); it != obstacles.end(); ++it) {
+		
+        //create pointer to current polygon's vector of coordinates
+        vector<coord>* cset = &(**it).coords_;
+        
+        //Get size of old coordSet
+        int len = cset.size();
+		//vector<coord> c = (**it).coords_;
+        
+		//iterate through each polygon coordinate
+		for(int  i = 0; i < len; ++i){
+			//get x coord, y coord
+			double x = cset[i].get(0);
+			double y = cset[i].get(1);
+			//create new coordinate + push back onto coordSet
+			cset.push_back(*new coord(x + dx, y + dy));
+		}
+		//push new coord set to new Obstacles.
+		//newObstacles.push_back(new Polygon(coordSet));
+	}
+	//set obstacles pointer to newObstacles memory location
+	//obstacles = newObstacles;
 }
 
 // Removes unesseary coordinates from vector of polygons (obstacles)
@@ -40,8 +72,59 @@ void algs::growObstacles(vector<Polygon*> &obstacles)
 //				 covex hull of each polygon.
 void algs::replaceWithConvexHulls(vector<Polygon*> &obstacles)
 {
-	//Emily
-	//code goes here
+    
+    //Create vector of polygon* to save convex hull of obstacles
+	vector< Polygon* > newObstacles;
+    
+    std::vector<Polygon*>::iterator it;
+	
+    //iterate through all polygons
+	for( it = obstacles.begin(); it != obstacles.end(); ++it) {
+		
+        //create new coordinate set which will hold hull coordinates
+		vector<coord> points = (**it).getCoordSet();
+		int n = points.size();
+		int k = 0;
+		vector<coord> hull(2*n);
+        
+		//sort points lexicographically
+		sort(points.begin(), points.end());
+        
+		//build lower hull
+		for(int i = 0; i < n; i++){
+			while(k >=2 && cross( hull[k-2], hull[k-1], points[i]) <= 0) k--;
+			hull[k++] = points[i];
+		}
+        
+		//build upper hull
+		for(int i = n-2, t = k+1; i >= n; i--){
+			while(k >= t && cross( hull[k-2], hull[k-1], points[i]) <= 0) k--;
+			hull[k++] = points[i];
+		}
+        
+		hull.resize(k);
+        
+		//push new coord set to new Obstacles.
+		newObstacles.push_back(new Polygon(hull));
+	}
+    //set obstacles pointer to newObstacles memory location
+	obstacles = newObstacles;
+    
+}
+
+//Given input of 3 coordinates, calculate z-component of 3-d
+//cross product.
+//Inputs:
+//Output:
+//	if pqr = counterclockwise turn: double < 0
+//	if pqr = clockwise turn: double > 0
+//	if pqr = colinear : double = -
+double algs::cross(coord &p, coord &q, coord &r){
+    
+	return (q.get(0) - p.get(0))*(r.get(1) - \
+        p.get(1)) - (r.get(0) - p.get(0))*(q.get(0)-p.get(0));
+	
+    
 }
 
 // Given the vector of polygons (obstacles) and the member
