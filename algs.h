@@ -1,6 +1,7 @@
 #ifndef __ALGS_H__
 #define __ALGS_H__
 
+#include <map>
 #include <vector>
 #include "coord.h"
 #include "Parser.h"
@@ -21,19 +22,29 @@ public:
 
 	~algs();
 
-	void algs::growObstacles(vector<Polygon*> &obstacles);
+	void growObstacles(vector<Polygon*> &obstacles);
 
-	void algs::replaceWithConvexHulls(vector<Polygon*> &obstacles);
+	void replaceWithConvexHulls(vector<Polygon*> &obstacles);
 
-	void algs::removeHullsPassed(vector<Polygon*> &obstacles);
+	void removeHullsPassed(vector<Polygon*> &obstacles);
+    
+    double cross(coord &p, coord &q, coord &r);
+    
+    bool sortByAngles(std::pair<coord, std::pair<double, double>> pair1, std::pair<coord, std::pair<double, double>> pair2);
+    
+    bool sortByDistances(std::pair<std::pair<coord, coord>, double> pair1, std::pair<std::pair<coord, coord>, double> pair2);
+    
+    std::map<coord, vector<coord>> visibilityGraph(const std::vector<Polygon *> &obstacles);
+    
+    std::vector<coord> visibleVertices(const coord &point, const std::vector<Polygon*> &obstacles);
+   
+    bool visible(const coord &vertex);
 
-	void algs::determineReachableCoords(coord & perceived_pos, vector<Polygon*> &obstacles, vector<coord> &d_coords);
+	void dijkstra(vector<Polygon*> &obstacles, vector<coord> &path);
 
-	void algs::dijkstra(vector<Polygon*> &obstacles, vector<coord> &path);
+	void pathPlan(vector<coord> &path, double &angle, double &dist);
 
-	void algs::pathPlan(vector<coord> &path, double &angle, double &dist);
-
-	void algs::renderVisibilityGraph(int map_id, vector<coord> &path, Polygon &boundary, vector<Polygon*> &o_obs, vector<Polygon*> &g_obs);
+	void renderVisibilityGraph(int map_id, vector<coord> &path, Polygon &boundary, vector<Polygon*> &o_obs, vector<Polygon*> &g_obs);
 
 	coord goal;
 	coord curr_pos;
