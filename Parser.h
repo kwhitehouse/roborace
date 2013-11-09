@@ -21,8 +21,8 @@ public:
     
     virtual void parseStartGoal (
             const char *file,
-            Coord &start,
-            Coord &goal);
+            coord &start,
+            coord &goal);
 };
 
 #endif
