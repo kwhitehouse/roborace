@@ -41,15 +41,17 @@ void algs::growObstacles(vector<Polygon*> &obstacles)
 		
         //create pointer to current polygon's vector of coordinates
         vector<coord> cset = (*it)->coords_;
-
-        vector<coord>::iterator iter_vertices;
-        for(iter_vertices = cset.begin(); iter_vertices != cset.end(); ++ iter_vertices){
+    
+        int len = (int)cset.size();
+    
+        for(int i = 0; i < len; ++i){
 			//get x coord, y coord
-			double x = iter_vertices->get(0);
-			double y = iter_vertices->get(1);
+			double x = cset[i].get(0);
+			double y = cset[i].get(1);
             
 			//create new coordinate + push back onto coordSet
 			cset.push_back(coord(x + dx, y + dy));
+            
 		}
 		//push new coord set to new Obstacles.
 		//newObstacles.push_back(new Polygon(coordSet));
@@ -114,8 +116,6 @@ void algs::replaceWithConvexHulls(vector<Polygon*> &obstacles)
 	}
     //set obstacles pointer to newObstacles memory location
 	obstacles = newObstacles;
-     
-     
     
 }
 
@@ -127,8 +127,7 @@ void algs::replaceWithConvexHulls(vector<Polygon*> &obstacles)
 //	if pqr = clockwise turn: double > 0
 //	if pqr = colinear : double = -
 double algs::cross(coord &p, coord &q, coord &r){
-	return (q.get(0) - p.get(0))*(r.get(1) - \
-        p.get(1)) - (r.get(0) - p.get(0))*(q.get(0)-p.get(0));
+	return (q.get(0) - p.get(0))*(r.get(1) - p.get(1)) - (r.get(0) - p.get(0))*(q.get(0)-p.get(0));
 }
 
 // Given the vector of polygons (obstacles) and the member
