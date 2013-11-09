@@ -145,7 +145,7 @@ void algs::removeHullsPassed(vector<Polygon*> &obstacles)
 	//code goes here
 }
 
-bool sortByAngles(std::pair<coord, std::pair<double, double>> pair1, std::pair<coord, std::pair<double,double>> pair2)
+bool sortByAngles(std::pair<coord, std::pair<double, double> > pair1, std::pair<coord, std::pair<double,double> > pair2)
 {
     //if angles are the same, evaluate by distance
     if(pair1.second.first == pair2.second.first)
@@ -191,14 +191,14 @@ vector<coord> algs::visibleVertices(const coord &point, const vector<Polygon*> &
     
     vector<Polygon *>::const_iterator iter_obstacles;
     vector<coord>::iterator iter_vertices;
-    vector<pair<coord, pair<double, double>>>::iterator iter_angles;
+    vector<pair<coord, pair<double, double> > >::iterator iter_angles;
     
     
     //create map with keys = obstacle vertices, values = clockwise angle that the half-line from point to each vertex makes with the positive x-axis
-    vector<pair<coord, pair<double, double>>> vertices_angles;
+    vector<pair<coord, pair<double, double> > > vertices_angles;
     
     //find obstacle edges intersected by half-line extending from point and store in tree
-    vector<pair< pair<coord, coord>, double>> intersecting_edges;
+    vector<pair< pair<coord, coord>, double> > intersecting_edges;
     
     for(iter_obstacles = obstacles.begin(); iter_obstacles != obstacles.end(); ++iter_obstacles){
         vector<coord> vertices = (*iter_obstacles)->coords_;

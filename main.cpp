@@ -4,8 +4,9 @@
 #include "Parser.h"
 #include "Polygon.h"
 #include "Parser.cpp"
-// #include "algs.h"
+#include "algs.h"
 #include <time.h>
+#include "algs.cpp"
 
 using namespace std;
 
@@ -25,14 +26,13 @@ int main (int argc, const char * argv[])
     Parser parser;
     parser.parseObstacles(argv[1], boundary, obstacles);
 
-    coord *start;
-    coord *goal;
+    coord start;
+    coord goal;
     parser.parseStartGoal(argv[2], start, goal);
-    assert(start != 0 && goal != 0); 
     vector< Polygon* > orig_obs = obstacles;
 
-    // algs code = new algs(start, goal);
-    // code.growObstacles(obstacles);
+    algs code = algs(start, goal);
+    code.growObstacles(obstacles);
     // code.replaceWithConvexHulls(obstacles);
 
     // vector<coord> path;

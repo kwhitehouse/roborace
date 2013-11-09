@@ -69,8 +69,8 @@ void Parser::parseObstacles (
 
 void Parser::parseStartGoal (
         const char *file,
-        coord* &start,
-        coord* &goal)
+        coord &start,
+        coord &goal)
 {
 
     ifstream in(file);
@@ -82,12 +82,12 @@ void Parser::parseStartGoal (
     istringstream iss(buffer);
     iss >> x >> y;
 
-    start = new coord(x,y);
+    start = coord(x,y);
 
     in.getline(buffer,128);
     buffer[in.gcount()] = 0;
 //    iss(buffer);
     iss >> x >> y;
-    goal = new coord(x,y);
+    goal = coord(x,y);
 
 }
