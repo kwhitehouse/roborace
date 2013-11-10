@@ -13,47 +13,47 @@
 // in order to determine the workspace of the robot without collisions
 // Inputs:
 //   obstacles:  Original polygons consisting of the coordinates
-//				 which make up their vertices
+//                               which make up their vertices
 // Outputs:
 //   obstacles:  The same polygons with coordinates added to each.
-//   			 polygon accounting for their growth regions
+//                       polygon accounting for their growth regions
 void algs::growObstacles(vector<Polygon*> &obstacles)
 {
     
     
     //Growing dimensions
     double radius = 0.34306/2;
-	double dx = radius;
-	double dy = radius;
+        double dx = radius;
+        double dy = radius;
     
     //iterator for polygons
-	std::vector<Polygon*>::iterator it;
+        std::vector<Polygon*>::iterator it;
 
     //New obstacle vector
-	vector< Polygon* > newObstacles;
-	
+        vector< Polygon* > newObstacles;
+        
     //iterate through all polygons
-	for(it = obstacles.begin(); it != obstacles.end(); ++it) {
-		
+        for(it = obstacles.begin(); it != obstacles.end(); ++it) {
+                
         //create pointer to current polygon's vector of coordinates
         vector<coord> cset = (*it)->coords_;
     
         int len = (int)cset.size();
     
         for(int i = 0; i < len; ++i){
-			//get x coord, y coord
-			double x = cset[i].get(0);
-			double y = cset[i].get(1);
+                        //get x coord, y coord
+                        double x = cset[i].x;
+                        double y = cset[i].y;
             
-			//create new coordinate + push back onto coordSet
-			cset.push_back(coord(x + dx, y + dy));
+                        //create new coordinate + push back onto coordSet
+                        cset.push_back(coord(x + dx, y + dy));
             
-		}
-		//push new coord set to new Obstacles.
-		//newObstacles.push_back(new Polygon(coordSet));
-	}
-	//set obstacles pointer to newObstacles memory location
-	//obstacles = newObstacles;
+                }
+                //push new coord set to new Obstacles.
+                //newObstacles.push_back(new Polygon(coordSet));
+        }
+        //set obstacles pointer to newObstacles memory location
+        //obstacles = newObstacles;
      
      
 }
@@ -63,11 +63,11 @@ void algs::growObstacles(vector<Polygon*> &obstacles)
 // that compose its covex hull and will therefore be used by dijkstras
 // Inputs:
 //   obstacles:  Grown polygons consisting of the coordinates
-//				 which make up their inner and outter vertices'
+//                               which make up their inner and outter vertices'
 // Outputs:
 //   obstacles:  A reduced representation of the same polygons
-//				 by only the vertices of importance, i.e the
-//				 covex hull of each polygon.
+//                               by only the vertices of importance, i.e the
+//                               covex hull of each polygon.
 //
 // Algorithm modified from: 
 // http://en.wikibooks.org/wiki/Algorithm_Implementation/Geometry/Convex_hull/Monotone_chain
@@ -77,41 +77,41 @@ void algs::replaceWithConvexHulls(vector<Polygon*> &obstacles)
 
     
     //Create vector of polygon* to save convex hull of obstacles
-	vector< Polygon* > newObstacles;
+        vector< Polygon* > newObstacles;
     
     std::vector<Polygon*>::iterator it;
-	
+        
     //iterate through all polygons
-	for( it = obstacles.begin(); it != obstacles.end(); ++it) {
-		
+        for( it = obstacles.begin(); it != obstacles.end(); ++it) {
+                
         //create new coordinate set which will hold hull coordinates
-		vector<coord> points = (*it)->coords_;
-		int n = (int)points.size();
-		int k = 0;
-		vector<coord> hull(2*n);
+                vector<coord> points = (*it)->coords_;
+                int n = (int)points.size();
+                int k = 0;
+                vector<coord> hull(2*n);
         
-		//sort points lexicographically
-		sort(points.begin(), points.end());
+                //sort points lexicographically
+                sort(points.begin(), points.end());
         
-		//build lower hull
-		for(int i = 0; i < n; i++){
-			while(k >=2 && cross( hull[k-2], hull[k-1], points[i]) <= 0) k--;
-			hull[k++] = points[i];
-		}
+                //build lower hull
+                for(int i = 0; i < n; i++){
+                        while(k >=2 && cross( hull[k-2], hull[k-1], points[i]) <= 0) k--;
+                        hull[k++] = points[i];
+                }
         
-		//build upper hull
-		for(int i = n - 2, t = k+1; i >= n; i--){
-			while(k >= t && cross( hull[k-2], hull[k-1], points[i]) <= 0) k--;
-			hull[k++] = points[i];
-		}
+                //build upper hull
+                for(int i = n - 2, t = k+1; i >= n; i--){
+                        while(k >= t && cross( hull[k-2], hull[k-1], points[i]) <= 0) k--;
+                        hull[k++] = points[i];
+                }
         
-		hull.resize(k);
+                hull.resize(k);
         
-		//push new coord set to new Obstacles.
-		newObstacles.push_back(new Polygon(hull));
-	}
+                //push new coord set to new Obstacles.
+                newObstacles.push_back(new Polygon(hull));
+        }
     //set obstacles pointer to newObstacles memory location
-	obstacles = newObstacles;
+        obstacles = newObstacles;
     
 }
 
@@ -119,11 +119,11 @@ void algs::replaceWithConvexHulls(vector<Polygon*> &obstacles)
 //cross product.
 //Inputs:
 //Output:
-//	if pqr = counterclockwise turn: double < 0
-//	if pqr = clockwise turn: double > 0
-//	if pqr = colinear : double = -
+//      if pqr = counterclockwise turn: double < 0
+//      if pqr = clockwise turn: double > 0
+//      if pqr = colinear : double = -
 double algs::cross(coord &p, coord &q, coord &r){
-	return (q.get(0) - p.get(0))*(r.get(1) - p.get(1)) - (r.get(0) - p.get(0))*(q.get(0)-p.get(0));
+        return (q.x - p.x)*(r.y - p.y) - (r.x - p.x)*(q.x-p.x);
 }
 
 // Given the vector of polygons (obstacles) and the member
@@ -134,18 +134,20 @@ double algs::cross(coord &p, coord &q, coord &r){
 //   obstacles:  Covex hulls of all obstacles in the course
 // Outputs:
 //   obstacles:  A recuded vector of Polygons containing only 
-//				 those obstacles yet to be passed
+//                               those obstacles yet to be passed
 void algs::removeHullsPassed(vector<Polygon*> &obstacles)
 {
-	//Kira
-	//code goes here
+        //Kira
+        //code goes here
 }
+
 
 
 
 
 bool sortByAngles(std::pair<coord, std::pair<double, double> > pair1, std::pair<coord, std::pair<double,double> > pair2)
 {
+
     //if angles are the same, evaluate by distance
     if(pair1.second.first == pair2.second.first)
         return pair1.second.second < pair2.second.second;
@@ -181,6 +183,27 @@ map<coord, vector<coord> > algs::visibilityGraph(const vector<Polygon *> &obstac
 }
 
 
+double linesIntersect(const coord &c1, const coord &c2, const coord &c3, const coord &c4)
+{
+    double denominator = (c1.x - c2.x)*(c3.y - c4.y) - (c1.y - c2.y)*(c3.x - c4.x); 
+
+    //lines are parallel
+    if (denominator == 0) {
+        //check if they are the same line
+        }
+    else{
+        coord intersection;
+        intersection.x = (c1.x*c2.y - c1.y*c2.x)*(c3.x - c4.x) - (c1.x - c2.x)*(c3.x*c4.y - c3.y*c4.x);
+        intersection.x /= denominator;
+        intersection.y = (c1.x*c2.y - c1.y*c2.x)*(c3.y - c4.y) - (c1.y - c2.y)*(c3.x*c4.y - c3.y*c4.x);
+        intersection.y /= denominator;
+
+        //check if intersection is within segments (c1 and c2)
+    }
+        return -1.0;
+}
+
+
 /*
  Input: a set of obstacles and a point
  Output: the set of obstacle vertices visible from the given point
@@ -203,28 +226,22 @@ vector<coord> algs::visibleVertices(const coord &point, const vector<Polygon*> &
         vector<coord> vertices = (*iter_obstacles)->coords_;
         for(iter_vertices = vertices.begin(); iter_vertices != vertices.end(); ++iter_vertices){
             //compute angle between point and vertices
-            double angle = atan2(iter_vertices->xy_[1] - point.xy_[1], iter_vertices->xy_[0] - point.xy_[0]) - atan2(point.xy_[1], point.xy_[0] + 1);
-            double distance = sqrt(pow(iter_vertices->xy_[1] - point.xy_[1], 2.0) + pow(iter_vertices->xy_[0] - point.xy_[0], 2.0));
+            double angle = atan2(iter_vertices->y - point.y, iter_vertices->x - point.x);
+            angle = angle < 0 ? angle + 360 : angle;
+            double distance = sqrt(pow(iter_vertices->y - point.y, 2.0) + pow(iter_vertices->x - point.x, 2.0));
             vertices_angles.push_back(std::make_pair(*iter_vertices, std::make_pair(angle, distance)));
         }
         
         //check for half-line intersection
         for(int i = 0; i < vertices.size(); ++i){
+                //push into map if edge intersects half-line
+               
+                double distance; 
+                if((distance = linesIntersect(vertices[i], vertices[(i + 1)%vertices.size()], point, point)) >= 0.0)
+                        intersecting_edges.push_back(std::make_pair(std::make_pair(vertices[i], vertices[(i + 1)%vertices.size()]), distance));
+
             
-            //do check here
-            /*
-            point.xy_[0]
-            point.xy_[1]
-            
-            vertices[i].xy_[0]
-            vertices[i].xy_[1]
-            
-            vertices[(i + 1)%vertices.size()].xy_[0]
-            vertices[(i + 1)%vertices.size()].xy_[1]
-             */
-            
-            //push into map if edge intersects half-line
-            //intersecting_edges.push_back(std::make_pair(std::make_pair(vertices[i], vertices[(i + 1)%vertices.size()]), distance));
+           
         }
     }
 

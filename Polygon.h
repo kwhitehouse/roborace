@@ -28,23 +28,28 @@ public:
         y_min = numeric_limits<double>::max();
 
         for(int i = 0; i < (int) coords.size(); ++i ){
-            if(coords[i].get(0) < x_min ){
-                x_min = coords[i].get(0);
+            if(coords[i].x < x_min ){
+                x_min = coords[i].x;
             }
-            if(coords[i].get(1) < y_min ){
-                y_min = coords[i].get(1);
+            if(coords[i].y < y_min ){
+                y_min = coords[i].y;
             }
-            if(coords[i].get(0) > x_max ){
-                x_max = coords[i].get(0);
+            if(coords[i].x > x_max ){
+                x_max = coords[i].x;
             }
-            if(coords[i].get(1) > y_max ){
-                y_max = coords[i].get(1);
+            if(coords[i].y > y_max ){
+                y_max = coords[i].y;
             }
         }
     }
     
     ~Polygon ();
-    
+   
+    friend ostream &operator<<(ostream &os, Polygon &p)
+    {
+        return os << "size: " <<  p.coords_.size();
+    }
+ 
     vector<coord> coords_;
     // vector<bid_edge> outter_path;
     double x_max;
