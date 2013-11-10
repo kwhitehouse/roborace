@@ -54,7 +54,7 @@ void visualize::paint(Window w) {
 // Shortest Path
 
 //void visualize::display(vector<Polygon*> &obs, vector<Polygon*> &grownObs, map<edges*> visibility, map<edges*> ) {
-int main(){
+int visualize(vector<Polygon*> &obs){
   dpy = XOpenDisplay(NULL);
   if (dpy == NULL) {
     fprintf(stderr, "Error: Can't open display. Is DISPLAY set?\n");
