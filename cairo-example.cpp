@@ -7,6 +7,14 @@
 // 2. In ~, sudo port install cairo
 // 3. Make sure the you have this in your path: PKG_CONFIG_PATH=$PKG_CONFIG_PATH:/opt/X11/lib/pkgconfig
 
+//INPUT:
+// Figure 1 shows a GUI rendering of each stage of the path planning:
+// Original Obstacles (plus wall boundary) & Start and End Points
+// Grown Obstacles
+// Visibility Graph
+// Shortest Path
+
+
 #include <cairo-xlib.h>
 #include <X11/Xlib.h>
 #include <stdio.h>
@@ -20,33 +28,22 @@ void paint(Window w) {
   //printf("paint\n");
   cairo_set_line_width(cairo, 1);
   cairo_set_source_rgb(cairo, 255, 0, 0);
-  cairo_rectangle(cairo, 20, 20, 50, 50);
+  //cairo_rectangle(cairo, 20, 20, 50, 50);
   //cairo_line_to (cairo, 1, 0.5);
   //cairo_stroke(cairo);
 
   cairo_set_source_rgb(cairo, 255, 0, 0);
-  cairo_rectangle(cairo, 100, 100, 50, 50);
+  //cairo_rectangle(cairo, 100, 100, 50, 50);
   //cairo_stroke(cairo);
 
   //cairo_set_source_rgb(cairo, 255, 0, 0);
   //cairo_stroke(cairo);
   cairo_move_to(cairo, 25, 25);
   cairo_line_to (cairo, 400, 25);
-  cairo_line_to(cairo, 30, 400);
+  cairo_line_to(cairo, 400, 400);
+  cairo_line_to(cairo, 25, 400);
+  cairo_line_to(cairo, 25, 25);
   cairo_stroke(cairo);
-  //cairo_rel_line_to (cairo, 25, -125);s
-  // cairo_stroke(cairo);
-
-  // cairo_set_line_width(cairo, 1);
-  // cairo_set_source_rgb(cairo, 255, 0, 0);
-  cairo_move_to(cairo, 300, 325);
-  cairo_line_to (cairo, 40, 60);
-  cairo_line_to (cairo, 400, 35);
-  cairo_stroke(cairo);
-  //cairo_line_to(cairo, 400, 25);
-  //cairo_line_to(cairo, 25, 25);
-  //cairo_move_to (cairo, 500, 500);
-  //cairo_stroke(cairo);
 
 }
 
@@ -65,7 +62,7 @@ int main() {
   XSelectInput(dpy, w, StructureNotifyMask | ExposureMask);
   XMapWindow(dpy, w);
 
-  surface = cairo_xlib_surface_create(dpy, w, DefaultVisual(dpy, 0), 200, 200);
+  surface = cairo_xlib_surface_create(dpy, w, DefaultVisual(dpy, 0), 500, 500);
   cairo = cairo_create(surface);
 
   while (1) {
