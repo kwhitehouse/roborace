@@ -27,6 +27,11 @@ public:
     }
 
     double operator[] (const int i) const;
+
+    bool operator<(const coord &rhs) const
+    {
+        return xy_[0] < rhs.xy_[0] || (xy_[0] == rhs.xy_[0] && xy_[1] < rhs.xy_[1]);
+    }
     
     friend  istream &operator>>(istream &is, coord &c) {
         return is >> c.xy_[0] >> c.xy_[1];

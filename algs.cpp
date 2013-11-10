@@ -1,8 +1,4 @@
-
 #include "algs.h"
-#include "coord.h"
-#include "Parser.h"
-#include "Polygon.h"
 #include <math.h>
 
 //All functions have have access to:
@@ -145,6 +141,9 @@ void algs::removeHullsPassed(vector<Polygon*> &obstacles)
 	//code goes here
 }
 
+
+
+
 bool sortByAngles(std::pair<coord, std::pair<double, double> > pair1, std::pair<coord, std::pair<double,double> > pair2)
 {
     //if angles are the same, evaluate by distance
@@ -163,9 +162,9 @@ bool sortByDistances(std::pair<std::pair<coord, coord>, double> pair1, std::pair
  Input: a set of disjoint polygonal obstacles
  Output: the visibility graph -- map from each vertex to all vertices visible from that vertex
  */
-map<coord, vector<coord>> algs::visibilityGraph(const vector<Polygon *> &obstacles)
+map<coord, vector<coord> > algs::visibilityGraph(const vector<Polygon *> &obstacles)
 {
-    map<coord, vector<coord>> visibility_graph;
+    map<coord, vector<coord> > visibility_graph;
     vector<Polygon *>::const_iterator iter_obstacles;
     for(iter_obstacles = obstacles.begin(); iter_obstacles != obstacles.end(); ++iter_obstacles){
         
@@ -230,11 +229,11 @@ vector<coord> algs::visibleVertices(const coord &point, const vector<Polygon*> &
     }
 
     //sort the obstacle vertices according to their angle. in the case of ties, vertices closer to point should come before vertices farther from point.
-    std::sort(vertices_angles.begin(), vertices_angles.end(), &algs::sortByAngles);
+    std::sort(vertices_angles.begin(), vertices_angles.end(), sortByAngles);
     
     
     //sort the intersected edges in order in which they are interesected by half-line
-    std::sort(intersecting_edges.begin(), intersecting_edges.end(), &algs::sortByDistances);
+    std::sort(intersecting_edges.begin(), intersecting_edges.end(), sortByDistances);
     
     //loop through sorted list of vertices, adding vertices to list of visible vertices if visible, while managing obstacle edges
     vector<coord> visible_vertices;

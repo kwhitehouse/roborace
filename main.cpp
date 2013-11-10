@@ -3,10 +3,8 @@
 #include "coord.h"
 #include "Parser.h"
 #include "Polygon.h"
-#include "Parser.cpp"
 #include "algs.h"
 #include <time.h>
-#include "algs.cpp"
 
 using namespace std;
 

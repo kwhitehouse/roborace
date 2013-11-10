@@ -20,8 +20,6 @@ class algs
 public:
 	algs(const coord &start, const coord &gol): goal(gol), curr_pos(start), finished(false) {}
 
-	~algs();
-
 	void growObstacles(vector<Polygon*> &obstacles);
 
 	void replaceWithConvexHulls(vector<Polygon*> &obstacles);
@@ -30,9 +28,6 @@ public:
     
     double cross(coord &p, coord &q, coord &r);
     
-    bool sortByAngles(std::pair<coord, std::pair<double, double> > pair1, std::pair<coord, std::pair<double, double> > pair2);
-    
-    bool sortByDistances(std::pair<std::pair<coord, coord>, double> pair1, std::pair<std::pair<coord, coord>, double> pair2);
     
     std::map<coord, vector<coord> > visibilityGraph(const std::vector<Polygon *> &obstacles);
     
