@@ -20,15 +20,37 @@
 #include <stdio.h>
 #include <iostream>
 
+#include <map>
+#include <vector>
+#include "coord.h"
+#include "Parser.h"
+#include "Polygon.h"
+#include "algs.h"
+
 static cairo_surface_t *surface;
 static cairo_t *cairo;
 static Display *dpy;
 
-void visualize::paint(Window w) {
-  //printf("paint\n");
+void paint(Window w) {
   cairo_set_line_width(cairo, 1);
-  cairo_set_source_rgb(cairo, 255, 0, 0);
-  //cairo_rectangle(cairo, 20, 20, 50, 50);
+  
+  //dark yellow for original obstacles
+ 
+  //blue for grown obstacles
+  cairo_set_source_rgb(cairo, 76, 172, 236);
+  //for each obstacle move to first coordinate, then draw
+  cairo_move_to(cairo, 25, 25);
+  cairo_line_to (cairo, 400, 25);
+  cairo_line_to(cairo, 400, 400);
+  cairo_line_to(cairo, 25, 400);
+  cairo_line_to(cairo, 25, 25);
+
+  //purple for grown obstacles
+  cairo_set_source_rgb(cairo, 177, 76, 236);
+
+  //green for valid path
+  cairo_set_source_rgb(cairo, 230, 208, 24);
+  cairo_rectangle(cairo, 20, 20, 50, 50);
   //cairo_line_to (cairo, 1, 0.5);
   //cairo_stroke(cairo);
 
@@ -38,11 +60,11 @@ void visualize::paint(Window w) {
 
   //cairo_set_source_rgb(cairo, 255, 0, 0);
   //cairo_stroke(cairo);
-  cairo_move_to(cairo, 25, 25);
-  cairo_line_to (cairo, 400, 25);
-  cairo_line_to(cairo, 400, 400);
-  cairo_line_to(cairo, 25, 400);
-  cairo_line_to(cairo, 25, 25);
+  // cairo_move_to(cairo, 25, 25);
+  // cairo_line_to (cairo, 400, 25);
+  // cairo_line_to(cairo, 400, 400);
+  // cairo_line_to(cairo, 25, 400);
+  // cairo_line_to(cairo, 25, 25);
   cairo_stroke(cairo);
 
 }
@@ -54,7 +76,9 @@ void visualize::paint(Window w) {
 // Shortest Path
 
 //void visualize::display(vector<Polygon*> &obs, vector<Polygon*> &grownObs, map<edges*> visibility, map<edges*> ) {
-int visualize(vector<Polygon*> &obs){
+int main(){
+
+
   dpy = XOpenDisplay(NULL);
   if (dpy == NULL) {
     fprintf(stderr, "Error: Can't open display. Is DISPLAY set?\n");
@@ -84,5 +108,6 @@ int visualize(vector<Polygon*> &obs){
         paint(w);
         break;
     }
+  }
     return 0;
   }
