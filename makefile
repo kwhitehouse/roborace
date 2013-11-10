@@ -2,7 +2,8 @@ OBJS = Parser.o algs.o main.o
 CXX = g++
 DEBUG = -g
 CXXFLAGS = -Wall $(DEBUG) $(INCLUDES)
-LXXFLAGS = -Wall $(DEBUG)
+LXXFLAGS = -Wall $(DEBUG) -framework GLUT -framework OpenGL
+LDFLAGS = -Wall $(DEBUG) -framework GLUT -framework OpenGL
 INCLUDES = -I.
 LDLIBS = -L. -lbiscuit
 

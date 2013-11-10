@@ -35,7 +35,7 @@ public:
    
     bool visible(const coord &vertex);
 
-	void dijkstra(vector<Polygon*> &obstacles, vector<coord> &path);
+    void dijkstra(map<coord, vector<coord> > &visibility_graph, const coord &source);
 
 	void pathPlan(vector<coord> &path, double &angle, double &dist);
 

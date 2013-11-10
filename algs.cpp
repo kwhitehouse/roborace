@@ -287,8 +287,13 @@ bool algs::visible(const coord &vertex)
 // Outputs:
 //   path:    	 The coordinates, in order, to be visited by the roomba in order
 //				 to perform optimally during RoboRace2013
-void algs::dijkstra(vector<Polygon*> &obstacles, vector<coord> &path)
+void algs::dijkstra(map<coord, vector<coord> > &visibility_graph, const coord &source)
 {
+    //map<coord, std::pair<coord, double> >
+
+    //vector<coord> visible_vertices = visibility_graph[source];
+    //map<coord, bool> visited;
+
     /*
     vector<coord> queue;
     determineReachableCoords(source, obstacles, queue);
@@ -303,6 +308,8 @@ void algs::dijkstra(vector<Polygon*> &obstacles, vector<coord> &path)
 
     }
      */
+    
+
 }
 
 // Given the curr_pos of the roomba and the path by which to follow
