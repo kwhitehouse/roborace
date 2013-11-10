@@ -190,7 +190,12 @@ double linesIntersect(const coord &c1, const coord &c2, const coord &c3, const c
     //lines are parallel
     if (denominator == 0) {
         //check if they are the same line
-        }
+        double slope = (c3.y - c4.y)/(c3.x - c4.x);
+        double b1 = c1.y - slope*c1.x;
+        double b3 = c3.y - slope*c3.x;
+        return (b1 == b3) ? 0 : -1;
+
+    }
     else{
         coord intersection;
         intersection.x = (c1.x*c2.y - c1.y*c2.x)*(c3.x - c4.x) - (c1.x - c2.x)*(c3.x*c4.y - c3.y*c4.x);
@@ -199,11 +204,14 @@ double linesIntersect(const coord &c1, const coord &c2, const coord &c3, const c
         intersection.y /= denominator;
 
         //check if intersection is within segments (c1 and c2)
+        if(intersection.x < max(c1.x, c2.x) && intersection.x > min(c1.x, c2.x) && intersection.y < max(c1.y, c2.y) && intersection.y > min(c1.y, c2.y)) {
+                //calculate distance and return;
+                return 0;
+        }
+        else
+                return -1;
     }
-        return -1.0;
 }
-
-
 /*
  Input: a set of obstacles and a point
  Output: the set of obstacle vertices visible from the given point
