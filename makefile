@@ -6,3 +6,9 @@ LFLAGS = -Wall $(DEBUG)
 
 letz_race : $(OBJS)
 	$(CC) $(LFLAGS) $(OBJS) -o letz_race
+
+
+.PHONY: clean
+clean:
+	rm -f $(OBJS) core letz_race
+
