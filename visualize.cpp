@@ -6,7 +6,6 @@
 // 1. Download macports: http://www.macports.org/install.php
 // 2. In ~, sudo port install cairo
 // 3. Make sure the you have this in your path: PKG_CONFIG_PATH=$PKG_CONFIG_PATH:/opt/X11/lib/pkgconfig
-//
 
 //INPUT:
 // Figure 1 shows a GUI rendering of each stage of the path planning:
@@ -25,7 +24,7 @@ static cairo_surface_t *surface;
 static cairo_t *cairo;
 static Display *dpy;
 
-void paint(Window w) {
+void visualize::paint(Window w) {
   //printf("paint\n");
   cairo_set_line_width(cairo, 1);
   cairo_set_source_rgb(cairo, 255, 0, 0);
@@ -48,7 +47,14 @@ void paint(Window w) {
 
 }
 
-int main() {
+// Figure 1 shows a GUI rendering of each stage of the path planning:
+// Original Obstacles (plus wall boundary) & Start and End Points
+// Grown Obstacles
+// Visibility Graph
+// Shortest Path
+
+//void visualize::display(vector<Polygon*> &obs, vector<Polygon*> &grownObs, map<edges*> visibility, map<edges*> ) {
+int visualize(vector<Polygon*> &obs){
   dpy = XOpenDisplay(NULL);
   if (dpy == NULL) {
     fprintf(stderr, "Error: Can't open display. Is DISPLAY set?\n");
@@ -78,7 +84,5 @@ int main() {
         paint(w);
         break;
     }
+    return 0;
   }
-
-  return 0;
-}
