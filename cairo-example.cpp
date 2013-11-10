@@ -6,6 +6,7 @@
 // 1. Download macports: http://www.macports.org/install.php
 // 2. In ~, sudo port install cairo
 // 3. Make sure the you have this in your path: PKG_CONFIG_PATH=$PKG_CONFIG_PATH:/opt/X11/lib/pkgconfig
+//
 
 //INPUT:
 // Figure 1 shows a GUI rendering of each stage of the path planning:

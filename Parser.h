@@ -19,8 +19,8 @@ public:
     
     void parseStartGoal (
             const char *file,
-            coord* &start,
-            coord* &goal);
+            coord &start,
+            coord &goal);
 };
 
 #endif
