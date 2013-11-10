@@ -5,6 +5,7 @@
 #include "Polygon.h"
 #include "algs.h"
 #include <time.h>
+#include "bisc.h"
 
 using namespace std;
 
@@ -12,6 +13,7 @@ using namespace std;
 //	RoboRace 2013
 int main (int argc, const char * argv[])
 {
+
     if (argc != 3) { //bad input
         cout << "usage: hw4_team11 <obstacles_file>.txt <start_goal_file>.txt " << endl;
         return -1;
@@ -30,21 +32,40 @@ int main (int argc, const char * argv[])
     vector< Polygon* > orig_obs = obstacles;
 
     algs code = algs(start, goal);
+
+    vector<Polygon *>::iterator it;
+    cout << "ORIGINALS" << endl;
+    for(it = obstacles.begin(); it != obstacles.end(); ++it)
+        cout << **it << endl;
+
     code.growObstacles(obstacles);
-    // code.replaceWithConvexHulls(obstacles);
+    
+    cout << "GROW OBSTACLES" << endl;
+    for(it = obstacles.begin(); it != obstacles.end(); ++it)
+        cout << **it << endl;
 
-    // vector<coord> path;
-    // coord curr_pos = start;
-    // int map_num = -1;
-    // bool bump_hit = false;
-    // bool visual_hit = false;
-    // double angle = 0;
-    // double dist = 0;
+    code.replaceWithConvexHulls(obstacles);
 
-    // while(curr_pos != goal){ //assumes goal is reachable
+    cout << "CONVEX HULLS" << endl;
+    for(it = obstacles.begin(); it != obstacles.end(); ++it)
+        cout << **it << endl;
 
-    //     //determine path
-    //     code.removeHullsPassed(obstacles);
+    //map<coord, vector<coord> > visibility_graph = code.visibilityGraph(obstacles);
+
+     vector<coord> path;
+     coord curr_pos = start;
+     int map_num = -1;
+     bool bump_hit = false;
+     bool visual_hit = false;
+     double angle = 0;
+     double dist = 0;
+
+     //change if to while
+     //while(curr_pos != goal){ //assumes goal is reachable
+
+         //determine path
+         //code.removeHullsPassed(obstacles);
+
     //     code.dijkstra(obstacles, path);
     //     code.renderVisibilityGraph(++map_num, path, boundary, orig_obs, obstacles);
 
@@ -61,7 +82,7 @@ int main (int argc, const char * argv[])
     //             break;
     //         }
     //     }
-    // }
+    //}
 
     double seconds = difftime(time(NULL),timer);
     cout << "Goal achieved at time: " << seconds << endl;

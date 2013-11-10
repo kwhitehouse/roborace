@@ -14,54 +14,33 @@ class coord {
 public:
     
     coord () {} // default constructor does nothing, not even inits.
-    coord (double x, double y) {
-        xy_[0] = x; xy_[1] = y;
-    }
-
-    void set (double x, double y) {
-        xy_[0] = x; xy_[1] = y;
-    }
-    
-    double get(int letter){
-        return xy_[letter];
-    }
-
-    double operator[] (const int i) const;
+    coord (double _x, double _y) : x(_x), y(_y) {}
 
     bool operator<(const coord &rhs) const
     {
-        return xy_[0] < rhs.xy_[0] || (xy_[0] == rhs.xy_[0] && xy_[1] < rhs.xy_[1]);
+        return x < rhs.x || (x == rhs.x && y < rhs.y);
     }
-    
+
+    friend bool operator==(const coord& lhs, const coord& rhs)
+    {
+        return (lhs.x == rhs.x) && (lhs.y == rhs.y); 
+    }
+
+    friend bool operator!=(const coord& lhs, const coord& rhs)
+    {
+        return !(lhs == rhs);
+    }
+
     friend  istream &operator>>(istream &is, coord &c) {
-        return is >> c.xy_[0] >> c.xy_[1];
+        return is >> c.x >> c.y;
     }
     
     friend ostream &operator<<(ostream &os, coord &c) {
-        return os<<"<"<<c.xy_[0]<<","<<c.xy_[1]<<">";
+        return os<<"<"<< c.x <<","<< c.y <<">";
     }
         
-    double xy_[2];
+    double x;
+    double y;
 };
-
-//CHANGE TO BE WITHIN SOME THRESHOLD
-inline bool operator==(const coord& lhs, const coord& rhs){
-    if(lhs.xy_[0] == rhs.xy_[0]
-        && lhs.xy_[1] == lhs.xy_[1]){
-        return true;
-    }
-    return false;
-}
-
-inline bool operator!=(const coord& lhs, const coord& rhs){
-    return !(lhs == rhs);
-}
-
-inline double coord::operator[]
-(const int i) const
-{
-    assert(i >= 0 && i < 2);
-    return xy_[i];
-}
 
 #endif

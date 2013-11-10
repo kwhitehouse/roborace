@@ -1,14 +1,17 @@
-OBJS = Parser.o algs.o main.o 
-CC = g++
+OBJS = Parser.o algs.o main.o
+CXX = g++
 DEBUG = -g
-CFLAGS = -Wall -c $(DEBUG)
-LFLAGS = -Wall $(DEBUG)
+CXXFLAGS = -Wall $(DEBUG) $(INCLUDES)
+LXXFLAGS = -Wall $(DEBUG)
+INCLUDES = -I.
+LDLIBS = -L. -lbiscuit
 
-letz_race : $(OBJS)
-	$(CC) $(LFLAGS) $(OBJS) -o letz_race
+race: $(OBJS) 
+	$(CXX) $(LXXFLAGS) $(OBJS) -o race $(LDLIBS) 
 
+$(OBJS): Parser.h algs.h Polygon.h coord.h
 
 .PHONY: clean
 clean:
-	rm -f $(OBJS) core letz_race
+	rm -f $(OBJS) core race
 

@@ -48,7 +48,7 @@ void Parser::parseObstacles (
 
                 double x, y;
                 iss >> x >> y;
-                coords.push_back(*new coord(x,y));
+                coords.push_back(coord(x,y));
             }
             else{
                 cerr << "problem reading coordinate at line " << line << endl;
