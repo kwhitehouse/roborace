@@ -44,11 +44,13 @@ void algs::growObstacles(vector<Polygon*> &obstacles)
                         //get x coord, y coord
                         double x = cset[i].x;
                         double y = cset[i].y;
-            
+                        cout << "original " <<  x << y << endl;
+                        cout << "add: " <<  x + dx << y + dy << endl;
                         //create new coordinate + push back onto coordSet
                         cset.push_back(coord(x + dx, y + dy));
             
                 }
+        (*it) ->coords_ = cset;
                 //push new coord set to new Obstacles.
                 //newObstacles.push_back(new Polygon(coordSet));
         }
