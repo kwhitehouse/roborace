@@ -1,5 +1,6 @@
 #include "algs.h"
 #include <math.h>
+#include <GLUT/glut.h>
 
 //All functions have have access to:
 //--// coord goal;
@@ -141,27 +142,7 @@ void algs::removeHullsPassed(vector<Polygon*> &obstacles)
         //code goes here
 }
 
-
-
-
-/*
-bool sortByAngles(std::pair<coord, std::pair<double, double> > pair1, std::pair<coord, std::pair<double,double> > pair2)
-{
-
-    //if angles are the same, evaluate by distance
-    if(pair1.second.first == pair2.second.first)
-        return pair1.second.second < pair2.second.second;
-    
-    //angles are not the same, use them for sorting comparison
-    return pair1.second.first < pair2.second.first;
-}
-bool sortByDistances(std::pair<std::pair<coord, coord>, double> pair1, std::pair<std::pair<coord, coord>, double> pair2)
-{
-    return pair1.second < pair2.second;
-}
-*/
-
-map<coord, vector<coord> > algs::naiveVisibilityGraph(const vector<Polygon *> &obstacles)
+map<coord, vector<coord> > algs::constructVisibilityGraph(const vector<Polygon *> &obstacles)
 {
     map<coord, vector<coord> > visibility_graph;
 
@@ -201,28 +182,6 @@ map<coord, vector<coord> > algs::naiveVisibilityGraph(const vector<Polygon *> &o
     return visibility_graph;
 }
 
-/*
- Input: a set of disjoint polygonal obstacles
- Output: the visibility graph -- map from each vertex to all vertices visible from that vertex
-map<coord, vector<coord> > algs::visibilityGraph(const vector<Polygon *> &obstacles)
-{
-    map<coord, vector<coord> > visibility_graph;
-    vector<Polygon *>::const_iterator iter_obstacles;
-    for(iter_obstacles = obstacles.begin(); iter_obstacles != obstacles.end(); ++iter_obstacles){
-        
-        vector<coord> vertices = (*iter_obstacles)->coords_;
-        vector<coord>::iterator iter_vertices;
-        for(iter_vertices = vertices.begin(); iter_vertices != vertices.end(); ++iter_vertices){
-            
-            vector<coord> visible_points = visibleVertices(*iter_vertices, obstacles);
-            visibility_graph[*iter_vertices] = visible_points;
-        }
-        
-    }
-    return visibility_graph;
-}
-*/
-
 bool algs::segmentsIntersect(const coord &c1, const coord &c2, const coord &c3, const coord &c4)
 {
     double denominator = (c1.x - c2.x)*(c3.y - c4.y) - (c1.y - c2.y)*(c3.x - c4.x); 
@@ -243,109 +202,6 @@ bool algs::segmentsIntersect(const coord &c1, const coord &c2, const coord &c3, 
            intersection.y <= max(c1.y, c2.y) && 
            intersection.y >= min(c1.y, c2.y);
 }
-
-/*
-double linesIntersect(const coord &c1, const coord &c2, const coord &c3, const coord &c4)
-{
-    double denominator = (c1.x - c2.x)*(c3.y - c4.y) - (c1.y - c2.y)*(c3.x - c4.x); 
-
-    //lines are parallel
-    if (denominator == 0) {
-        //check if they are the same line
-        double slope = (c3.y - c4.y)/(c3.x - c4.x);
-        double b1 = c1.y - slope*c1.x;
-        double b3 = c3.y - slope*c3.x;
-        return (b1 == b3) ? 0 : -1;
-
-    }
-    else{
-        coord intersection;
-        intersection.x = (c1.x*c2.y - c1.y*c2.x)*(c3.x - c4.x) - (c1.x - c2.x)*(c3.x*c4.y - c3.y*c4.x);
-        intersection.x /= denominator;
-        intersection.y = (c1.x*c2.y - c1.y*c2.x)*(c3.y - c4.y) - (c1.y - c2.y)*(c3.x*c4.y - c3.y*c4.x);
-        intersection.y /= denominator;
-
-        //check if intersection is within segments (c1 and c2)
-        if(intersection.x < max(c1.x, c2.x) && intersection.x > min(c1.x, c2.x) && intersection.y < max(c1.y, c2.y) && intersection.y > min(c1.y, c2.y)) {
-                //calculate distance and return;
-                return 0;
-        }
-        else
-                return -1;
-    }
-}
-*/
-/*
- Input: a set of obstacles and a point
- Output: the set of obstacle vertices visible from the given point
-vector<coord> algs::visibleVertices(const coord &point, const vector<Polygon*> &obstacles)
-{
-    
-    vector<Polygon *>::const_iterator iter_obstacles;
-    vector<coord>::iterator iter_vertices;
-    vector<pair<coord, pair<double, double> > >::iterator iter_angles;
-    
-    
-    //create map with keys = obstacle vertices, values = clockwise angle that the half-line from point to each vertex makes with the positive x-axis
-    vector<pair<coord, pair<double, double> > > vertices_angles;
-    
-    //find obstacle edges intersected by half-line extending from point and store in tree
-    vector<pair< pair<coord, coord>, double> > intersecting_edges;
-    
-    for(iter_obstacles = obstacles.begin(); iter_obstacles != obstacles.end(); ++iter_obstacles){
-        vector<coord> vertices = (*iter_obstacles)->coords_;
-        for(iter_vertices = vertices.begin(); iter_vertices != vertices.end(); ++iter_vertices){
-            //compute angle between point and vertices
-            double angle = atan2(iter_vertices->y - point.y, iter_vertices->x - point.x);
-            angle = angle < 0 ? angle + 360 : angle;
-            double distance = sqrt(pow(iter_vertices->y - point.y, 2.0) + pow(iter_vertices->x - point.x, 2.0));
-            vertices_angles.push_back(std::make_pair(*iter_vertices, std::make_pair(angle, distance)));
-        }
-        
-        //check for half-line intersection
-        for(int i = 0; i < vertices.size(); ++i){
-                //push into map if edge intersects half-line
-               
-                double distance; 
-                if((distance = linesIntersect(vertices[i], vertices[(i + 1)%vertices.size()], point, point)) >= 0.0)
-                        intersecting_edges.push_back(std::make_pair(std::make_pair(vertices[i], vertices[(i + 1)%vertices.size()]), distance));
-
-            
-           
-        }
-    }
-
-    //sort the obstacle vertices according to their angle. in the case of ties, vertices closer to point should come before vertices farther from point.
-    std::sort(vertices_angles.begin(), vertices_angles.end(), sortByAngles);
-    
-    
-    //sort the intersected edges in order in which they are interesected by half-line
-    std::sort(intersecting_edges.begin(), intersecting_edges.end(), sortByDistances);
-    
-    //loop through sorted list of vertices, adding vertices to list of visible vertices if visible, while managing obstacle edges
-    vector<coord> visible_vertices;
-    for(iter_angles = vertices_angles.begin(); iter_angles != vertices_angles.end(); ++iter_angles){
-        if(visible(iter_angles->first)){
-            visible_vertices.push_back(iter_angles->first);
-        }
-        //insert obstacle edges incident to iter_angles->first that line on clockwise side of half-line
-        //intersecting_edges
-        //delte obstace edges incident to iter_angles->first that lie on counterclockwise side of half-line
-        //intersecting_edges
-    }
-    
-    return visible_vertices;
-  
-}
-
-bool algs::visible(const coord &point)
-{
-    
-    return true;
-}
-*/
-
-
 
 // Using the coords present in each Polygon within obstacles, the
 // curr_pos, and the goal, find the best path to the goal.
@@ -406,19 +262,3 @@ void algs::pathPlan(vector<coord> &path, double &angle, double &dist)
 	//code goes here
 }
 
-// A visual representation of the workspace of the robot, along with its potential
-// and chosen paths from start to goal.
-// Inputs:
-//   map_id: 	The title or index of the visibility graph version. Will increase
-//			 	as collisions occur and new paths have to be computed
-//   path:   	The path chosen as the optimal path to be highligted in the gui
-//   boundary:  The outermost edge of the workspace of the robot
-//   o_obs: 	The original, ungrown obstacles in the course
-//	 g_obs: 	The convex hulls of the grown obstacles in the course
-// Outputs:
-//   Renders an on screen GUI representation of the Visibility Graph
-void algs::renderVisibilityGraph(int map_id, vector<coord> &path, Polygon &boundary, vector<Polygon*> &o_obs, vector<Polygon*> &g_obs)
-{
-	//?
-	//code goes here
-}

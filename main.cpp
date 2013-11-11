@@ -1,14 +1,98 @@
 #include <iostream>
+#include <time.h>
 #include <vector>
+#include <GLUT/glut.h>
+
 #include "coord.h"
 #include "Parser.h"
 #include "Polygon.h"
 #include "algs.h"
-#include <time.h>
 #include "bisc.h"
-#include <GLUT/glut.h>
+
+#define WIDTH   300
+#define HEIGHT  300
 
 using namespace std;
+
+coord start;
+coord goal;
+
+vector<Polygon *> original_obstacles;
+vector<Polygon *> grown_obstacles;
+map<coord, vector<coord> > visibility_graph;
+
+void display()
+{
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glOrtho(-7, 13, -10, 10, 0, 1);
+    glDisable(GL_DEPTH_TEST);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+
+    glClearColor(1.0f, 1.0f, 1.0f, 1.0f); // Set background color to white
+    glClear(GL_COLOR_BUFFER_BIT);         // Clear the color buffer (background)
+
+    vector<coord> cset; 
+    vector<Polygon *>::iterator itp;
+    vector<coord>::iterator itc;
+
+    for(itp = original_obstacles.begin(); itp != original_obstacles.end(); ++itp){
+        glPushMatrix();
+        glBegin(GL_LINE_LOOP);
+        glColor3f(1.0f, 0.0f, 0.0f);
+
+        cset = (*itp)->coords_;
+        for(itc = cset.begin(); itc != cset.end(); ++itc)
+            glVertex2f((GLfloat) itc->x, (GLfloat) itc->y);
+
+        glEnd();
+        glPopMatrix();
+    }
+
+    for(itp = grown_obstacles.begin(); itp != grown_obstacles.end(); ++itp){
+        glPushMatrix();
+        glBegin(GL_LINE_LOOP);
+        glColor3f(0.0f, 0.0f, 1.0f); 
+
+        cset = (*itp)->coords_;
+        for(itc = cset.begin(); itc != cset.end(); ++itc)
+            glVertex2f((GLfloat) itc->x, (GLfloat) itc->y);
+
+        glEnd();
+        glPopMatrix();
+    }
+
+    map<coord, vector<coord> >::iterator itv;
+    for(itv = visibility_graph.begin(); itv != visibility_graph.end(); ++itv) {
+        for(itc = itv->second.begin(); itc != itv->second.end(); ++itc){
+            glPushMatrix();
+            glBegin(GL_LINE_LOOP);
+            glColor3f(1.0, 0, 1.0);
+
+            glVertex2f((GLfloat) itv->first.x, (GLfloat) itv->first.y);
+            glVertex2f((GLfloat) itc->x, (GLfloat) itc->y); 
+
+            glEnd();
+            glPopMatrix();
+        } 
+    }
+
+
+    glFlush();
+}
+
+
+
+
+void rend(int argc, char **argv)
+{
+    glutInit(&argc, argv);
+    glutInitWindowSize(WIDTH, HEIGHT);
+    glutCreateWindow("roborace");
+    glutDisplayFunc(display);
+    glutMainLoop();
+}
 
 /*
 	hw4 team 11
@@ -21,46 +105,30 @@ int main (int argc, char * argv[])
         cout << "usage: hw4_team11 <obstacles_file>.txt <start_goal_file>.txt " << endl;
         return -1;
     }
-    /* get current time */
-    time_t timer;
-    time(&timer);  
-
+   
+    /*obtain obstacles*/ 
     Polygon *boundary;
-    vector< Polygon* > obstacles;
     Parser parser;
-    parser.parseObstacles(argv[1], boundary, obstacles);
+    parser.parseObstacles(argv[1], boundary, original_obstacles);
 
-    coord start;
-    coord goal;
+    /*obtain start and goal points*/
     parser.parseStartGoal(argv[2], start, goal);
-    vector< Polygon* > orig_obs = obstacles;
 
+    /*compute: grown obstacles, convex hulls, visibility graph*/
     algs code = algs(start, goal);
 
-    vector<Polygon *>::iterator it;
-    cout << "ORIGINALS" << endl;
-    for(it = obstacles.begin(); it != obstacles.end(); ++it)
-        cout << **it << endl;
-
-    code.growObstacles(obstacles);
+    grown_obstacles = original_obstacles;
+    code.growObstacles(grown_obstacles);
     
-    cout << "GROW OBSTACLES" << endl;
-    for(it = obstacles.begin(); it != obstacles.end(); ++it)
-        cout << **it << endl;
+    vector< Polygon* > hull_obstacles(grown_obstacles);
+    code.replaceWithConvexHulls(hull_obstacles);
 
-    code.replaceWithConvexHulls(obstacles);
+    visibility_graph = code.constructVisibilityGraph(hull_obstacles);
 
-    cout << "CONVEX HULLS" << endl;
-    for(it = obstacles.begin(); it != obstacles.end(); ++it)
-        cout << **it << endl;
+    /*render in gui*/
+    rend(argc, argv);
 
-    map<coord, vector<coord> > visibility_graph = code.naiveVisibilityGraph(obstacles);
-    cout << "VISIBILITY GRAPH" << endl;
-    map<coord, vector<coord> >::iterator vg_iter;
-    for(vg_iter = visibility_graph.begin(); vg_iter != visibility_graph.end(); ++vg_iter) {
-        cout << vg_iter->second.size() << endl;
-    }
-
+/*
      vector<coord> path;
      coord curr_pos = start;
      int map_num = -1;
@@ -68,6 +136,12 @@ int main (int argc, char * argv[])
      bool visual_hit = false;
      double angle = 0;
      double dist = 0;
+    get current time
+    time_t timer;
+    time(&timer);  
+
+
+ */
 
      //change if to while
      //while(curr_pos != goal){ //assumes goal is reachable
@@ -93,8 +167,8 @@ int main (int argc, char * argv[])
     //     }
     //}
 
-    double seconds = difftime(time(NULL),timer);
-    cout << "Goal achieved at time: " << seconds << endl;
+    //double seconds = difftime(time(NULL),timer);
+    //cout << "Goal achieved at time: " << seconds << endl;
     return 0;
 }
 

@@ -9,12 +9,6 @@
 #include "algs.h"
 
 
-struct bid_edge //bi-directional edge
-{
-    coord _a;
-    coord _b;
-};
-
 class algs
 {
     public:
@@ -30,24 +24,15 @@ class algs
 
         bool segmentsIntersect(const coord &, const coord &, const coord &, const coord &);
 
-        std::map<coord, vector<coord> > naiveVisibilityGraph(const std::vector<Polygon *> &obstacles);
-
-        //std::map<coord, vector<coord> > visibilityGraph(const std::vector<Polygon *> &obstacles);
-
-        //std::vector<coord> visibleVertices(const coord &point, const std::vector<Polygon*> &obstacles);
-
-        //bool visible(const coord &vertex);
+        std::map<coord, vector<coord> > constructVisibilityGraph(const std::vector<Polygon *> &obstacles);
 
         void dijkstra(map<coord, vector<coord> > &visibility_graph, const coord &source);
 
         void pathPlan(vector<coord> &path, double &angle, double &dist);
 
-        void renderVisibilityGraph(int map_id, vector<coord> &path, Polygon &boundary, vector<Polygon*> &o_obs, vector<Polygon*> &g_obs);
-
         coord goal;
         coord curr_pos;
         bool finished;
-        vector<bid_edge> potential_paths;
 };
 
 #endif
