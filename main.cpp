@@ -38,8 +38,7 @@ void display()
     glPointSize(8.0f);
     glBegin(GL_POINTS);
     glVertex2f((GLfloat) start.x, (GLfloat) start.y);
-    glVertex2f((GLfloat) 10.56, (GLfloat) 0.03);
-    //glVertex2f((GLfloat) goal.x, (GLfloat) goal.y);
+    glVertex2f((GLfloat) goal.x, (GLfloat) goal.y);
     glEnd();
 
     vector<coord> cset; 
