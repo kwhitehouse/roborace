@@ -142,7 +142,23 @@ void algs::removeHullsPassed(vector<Polygon*> &obstacles)
         //code goes here
 }
 
-map<coord, vector<coord> > algs::constructVisibilityGraph(const vector<Polygon *> &obstacles)
+
+vector<coord> algs::visibleVertices(const vector<pair<coord, coord> > &edges, vector<coord> visible, const coord &vertex)
+{
+    for(vector<pair<coord, coord> >::size_type k = 0; k < edges.size(); ++k){ 
+        vector<coord>::iterator iter = visible.begin();
+        while(iter != visible.end()){
+            //if edge intersects with anything, remove from visible coords
+            if(segmentsIntersect(vertex, *iter, edges[k].first, edges[k].second))
+                visible.erase(iter);
+            else
+                ++iter;
+        }
+    }
+    return visible;
+} 
+
+map<coord, vector<coord> > algs::constructVisibilityGraph(const vector<Polygon *> &obstacles, const coord &start, const coord &goal)
 {
     map<coord, vector<coord> > visibility_graph;
 
@@ -154,7 +170,6 @@ map<coord, vector<coord> > algs::constructVisibilityGraph(const vector<Polygon *
             edges.push_back(make_pair(coords[j], coords[(j + 1)%coords.size()]));    
         }
     }
-
 
     //iterate through obstacles, draw lines to each vertex and check if they intersect obstacle edges
     for(vector<Polygon *>::size_type i = 0; i < obstacles.size(); ++ i) {
@@ -173,37 +188,27 @@ map<coord, vector<coord> > algs::constructVisibilityGraph(const vector<Polygon *
         //loop through vertices of current obstacle
         vector<coord> coords = obstacles[i]->coords_;
         for(int j = 0; j < (int) coords.size(); ++j) {
-            //initialize visible with all vertices
-            vector<coord> visible(vertices);
-
-            for(vector<pair<coord, coord> >::size_type k = 0; k < edges.size(); ++k){ 
-                vector<coord>::iterator iter = visible.begin();
-                while(iter != visible.end()){
-                    //if edge intersects with anything, remove from visible coords
-                    if(segmentsIntersect(coords[j], *iter, edges[k].first, edges[k].second))
-                        visible.erase(iter);
-                    else
-                        ++iter;
-                }
-            }
-            visibility_graph[coords[j]] = visible;
+            visibility_graph[coords[j]] = visibleVertices(edges, vertices, coords[j]);
         }
     }
 
+    //create vertices of all objects for start and goal
+    vector<coord> vertices;
+    for(vector<Polygon *>::size_type m = 0; m < obstacles.size(); ++m) {
+        vector<coord> coords = obstacles[m]->coords_;
+        for(vector<coord>::size_type n = 0; n < coords.size(); ++n) {
+            vertices.push_back(coords[n]);
+        }
+    }
+
+    visibility_graph[start] = visibleVertices(edges, vertices, start);
+    visibility_graph[goal] = visibleVertices(edges, vertices, goal);
 
     return visibility_graph;
 }
 
 bool algs::segmentsIntersect(const coord &c1, const coord &c2, const coord &c3, const coord &c4)
 {
-    /* 
-       cout << "intersect?" <<endl;
-       cout << c1.x << " " << c1.y << endl;    
-       cout << c2.x << " " << c2.y << endl;    
-       cout << c3.x << " " << c3.y << endl;    
-       cout << c4.x << " " << c4.y << endl;    
-     */
-
     double denominator = (c1.x - c2.x)*(c3.y - c4.y) - (c1.y - c2.y)*(c3.x - c4.x); 
 
     //lines are parallel, if they are the same line they are visible anyway so return false
@@ -263,54 +268,82 @@ bool containsUnvisited(pair<coord, bool> vertex)
 // Outputs:
 //   path:    	 The coordinates, in order, to be visited by the roomba in order
 //				 to perform optimally during RoboRace2013
-void algs::dijkstra(map<coord, vector<coord> > &visibility_graph, const coord &source)
+void algs::dijkstra(map<coord, vector<coord> > &visibility_graph, const coord &source, const coord &goal)
 {
-    map<pair<coord, coord>, double> distances;
+    map<coord, double> distances;
     map<coord, bool> visited;
+    map<coord, coord> previous;
 
-    vector<coord>::iterator iter_v;
+
+    /*initialize all vertices as unvisited*/
     map<coord, vector<coord> >::iterator iter_g;
-
-    for(iter_g = visibility_graph.begin(); iter_g != visibility_graph.end(); ++iter_g) {
-        /*initialize all vertices as unvisited*/
+    for(iter_g = visibility_graph.begin(); iter_g != visibility_graph.end(); ++iter_g)
         visited[iter_g->first] = false;
 
-        for(iter_v = iter_g->second.begin(); iter_v != iter_g->second.end(); ++iter_v){
-            /*initialize all distances from source to each visible vertex*/
-            double d = sqrt(pow(iter_v->x - iter_g->first.x, 2.0) + pow(iter_v->y - iter_g->first.y, 2.0));
-            distances[make_pair(*iter_v, iter_g->first)] = d;
-        }
+    /*initialize all distances from source to each visible vertex*/
+    vector<coord>::iterator iter_v;
+    for(iter_v = visibility_graph[source].begin(); iter_v != visibility_graph[source].end(); ++iter_v){
+            double d = sqrt(pow(iter_v->x - source.x, 2.0) + pow(iter_v->y - source.y, 2.0));
+            distances[*iter_v] = d;
     }
 
     /*mark source as visited*/
-    visited[source] = true;
+    distances[source] = 0.0;
+    vector<coord> queue;
+    queue.push_back(source);
 
-    /*while unvisited nodes exist*/
-    map<coord, bool>::iterator iter_u;
-    while(find_if(visited.begin(), visited.end(), containsUnvisited) != visited.end()) {
-        /*find closest vertex to current point*/
+    /*while queue is not empty*/
+    while(!queue.empty()){
+        cout << "queue: " << queue.size() << endl;
+
+        /*find closest vertex to current point that has not yet been visited*/
         double closest_distance = INFINITY;
-        coord closest_vertex;
-        for(iter_u = visited.begin(); iter_u != visited.end(); ++iter_u) {
-            if(!iter_u->second && distances[make_pair(iter_u->first, source)] < closest_distance) {
-                closest_distance = distances[make_pair(iter_u->first, source)];
-                closest_vertex = iter_u->first;
+        vector<coord>::iterator closest_vertex;
+        for(iter_v = queue.begin(); iter_v != queue.end(); ++iter_v) {
+            if(!visited[*iter_v] && distances[*iter_v] < closest_distance) {
+                closest_distance = distances[*iter_v];
+                closest_vertex = iter_v;
             }
         }
-
-        visited[closest_vertex] = true;
+        coord u = *closest_vertex;
+        /*remove closest, unvisited vertex from queue*/
+        queue.erase(closest_vertex);
+        /*mark closest, unvisited vertex as visited*/
+        visited[u] = true;
+        
+        cout << "u: " << u.x << " " << u.y << endl;
+        if(u == goal)
+                return;
 
         /*look through unvisited neighbors of closest point*/
-        vector<coord> neighbors = visibility_graph[closest_vertex];
+        vector<coord> neighbors = visibility_graph[u];
+        cout << "size " << neighbors.size() << endl;
         for(iter_v = neighbors.begin(); iter_v != neighbors.end(); ++iter_v) {
+            coord v = *iter_v;
+            cout << "v: " << v.x << " " << v.y << endl;
+
             /*if not visited*/
-            if(!visited[*iter_v]) {
-                double dist = distances[make_pair(source, closest_vertex)] + distances[make_pair(closest_vertex, *iter_v)];
-                if(distances.find(make_pair(source, *iter_v)) == distances.end() || dist < distances[make_pair(source, *iter_v)]) 
-                    distances[make_pair(source, *iter_v)] = dist;
+            if(!visited[v]) {
+                double dist = distances[u];
+                dist += sqrt(pow(u.x - v.x, 2.0) + pow(u.y - v.y, 2.0));
+                cout << "dist " << dist << endl;
+                cout << distances[v] << endl;
+                if(dist < distances[v]) {
+                    distances[v] = dist;
+                    previous[v] = u;
+                    queue.push_back(v);
+                }
             }
         }
    } 
+
+   /*error check*/
+   map<coord, coord>::iterator it;
+   for(it = previous.begin(); it != previous.end(); ++it) {
+        cout << "first, second" << endl;
+       cout << it->first.x << " " << it->first.y << " " << it->second.x << " " << it->second.y << endl; 
+   } 
+
 }
 
 // Given the curr_pos of the roomba and the path by which to follow

@@ -70,7 +70,6 @@ void display()
         glEnd();
     }
 
-      /* 
     map<coord, vector<coord> >::iterator itv;
     for(itv = visibility_graph.begin(); itv != visibility_graph.end(); ++itv) {
         for(itc = itv->second.begin(); itc != itv->second.end(); ++itc){
@@ -83,7 +82,6 @@ void display()
             glEnd();
         } 
     }
-*/
 
     glFlush();
 }
@@ -146,15 +144,15 @@ int main (int argc, char * argv[])
    squares.push_back(new Polygon(c1));
    squares.push_back(new Polygon(c2));
    squares.push_back(new Polygon(c3));
-   //original_obstacles = squares;
+   original_obstacles = squares;
 
     grown_obstacles = code.growObstacles(original_obstacles);
     
     vector< Polygon* > hull_obstacles(grown_obstacles);
     code.replaceWithConvexHulls(hull_obstacles);
 
-    visibility_graph = code.constructVisibilityGraph(original_obstacles);
-    code.dijkstra(visibility_graph, start);
+    visibility_graph = code.constructVisibilityGraph(original_obstacles, start, goal);
+    code.dijkstra(visibility_graph, start, goal);
         cout << "done with dijkstra" << endl;
 
     /*render in gui*/

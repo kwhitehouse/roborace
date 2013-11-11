@@ -24,9 +24,11 @@ class algs
 
         bool segmentsIntersect(const coord &, const coord &, const coord &, const coord &);
 
-        std::map<coord, vector<coord> > constructVisibilityGraph(const std::vector<Polygon *> &obstacles);
+        vector<coord> visibleVertices(const vector <pair<coord, coord> > &, vector<coord>, const coord &);
 
-        void dijkstra(map<coord, vector<coord> > &visibility_graph, const coord &source);
+        std::map<coord, vector<coord> > constructVisibilityGraph(const std::vector<Polygon *> &obstacles, const coord &start, const coord &goal);
+
+        void dijkstra(map<coord, vector<coord> > &visibility_graph, const coord &source, const coord &goal);
 
         void pathPlan(vector<coord> &path, double &angle, double &dist);
 
