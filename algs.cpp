@@ -17,7 +17,7 @@
 // Outputs:
 //   obstacles:  The same polygons with coordinates added to each.
 //                       polygon accounting for their growth regions
-void algs::growObstacles(vector<Polygon*> &obstacles)
+vector<Polygon*> algs::growObstacles(vector<Polygon*> &obstacles)
 {
     
     
@@ -44,18 +44,16 @@ void algs::growObstacles(vector<Polygon*> &obstacles)
                         //get x coord, y coord
                         double x = cset[i].x;
                         double y = cset[i].y;
-                        cout << "original " <<  x << y << endl;
-                        cout << "add: " <<  x + dx << y + dy << endl;
                         //create new coordinate + push back onto coordSet
                         cset.push_back(coord(x + dx, y + dy));
             
                 }
-        (*it) ->coords_ = cset;
+        newObstacles.push_back(new Polygon(cset));
                 //push new coord set to new Obstacles.
                 //newObstacles.push_back(new Polygon(coordSet));
         }
         //set obstacles pointer to newObstacles memory location
-        //obstacles = newObstacles;
+       return newObstacles;
      
      
 }
@@ -181,7 +179,7 @@ map<coord, vector<coord> > algs::naiveVisibilityGraph(const vector<Polygon *> &o
     //iterate through obstacles, draw lines to each vertex and check if they intersect obstacle edges
     for(int i = 0; i < obstacles.size(); ++ i) {
         vector<coord> coords = obstacles[i]->coords_;
-        for(int j = 0; j < coords.size(); ++j) {
+        for(int j = 0; j < (int) coords.size(); ++j) {
             //initialize visible with all vertices
             vector<coord> visible(vertices);
 
