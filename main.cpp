@@ -142,7 +142,7 @@ int main (int argc, char * argv[])
    squares.push_back(new Polygon(c1));
    squares.push_back(new Polygon(c2));
    squares.push_back(new Polygon(c3));
-   original_obstacles = squares;
+   //original_obstacles = squares;
 
     grown_obstacles = original_obstacles;
     code.growObstacles(grown_obstacles);
