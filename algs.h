@@ -16,7 +16,7 @@ class algs
 
         vector<Polygon*> growObstacles(vector<Polygon*> &obstacles);
 
-        void replaceWithConvexHulls(vector<Polygon*> &obstacles);
+        vector<Polygon*> replaceWithConvexHulls(const vector<Polygon*> &obstacles);
 
         void removeHullsPassed(vector<Polygon*> &obstacles);
 

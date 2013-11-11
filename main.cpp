@@ -45,18 +45,6 @@ void display()
     vector<Polygon *>::iterator itp;
     vector<coord>::iterator itc;
 
-   for(itp = grown_obstacles.begin(); itp != grown_obstacles.end(); ++itp){
-        glBegin(GL_LINE_LOOP);
-        glColor3f(0.0f, 0.0f, 1.0f); 
-
-        cset = (*itp)->coords_;
-        for(itc = cset.begin(); itc != cset.end(); ++itc)
-            glVertex2f((GLfloat) itc->x, (GLfloat) itc->y);
-
-        glEnd();
-    }
-
-
 
     for(itp = original_obstacles.begin(); itp != original_obstacles.end(); ++itp){
         glBegin(GL_LINE_LOOP);
@@ -69,6 +57,19 @@ void display()
         glEnd();
     }
 
+
+   for(itp = grown_obstacles.begin(); itp != grown_obstacles.end(); ++itp){
+        glBegin(GL_LINE_LOOP);
+        glColor3f(0.0f, 0.0f, 1.0f); 
+
+        cset = (*itp)->coords_;
+        for(itc = cset.begin(); itc != cset.end(); ++itc)
+            glVertex2f((GLfloat) itc->x, (GLfloat) itc->y);
+
+        glEnd();
+    }
+
+/*
     map<coord, vector<coord> >::iterator itv;
     for(itv = visibility_graph.begin(); itv != visibility_graph.end(); ++itv) {
         for(itc = itv->second.begin(); itc != itv->second.end(); ++itc){
@@ -81,10 +82,9 @@ void display()
             glEnd();
         } 
     }
-
+*/
     glFlush();
 }
-
 
 
 
@@ -145,10 +145,8 @@ int main (int argc, char * argv[])
    squares.push_back(new Polygon(c3));
    original_obstacles = squares;
 
-    grown_obstacles = code.growObstacles(original_obstacles);
-    
-    vector< Polygon* > hull_obstacles(grown_obstacles);
-    code.replaceWithConvexHulls(hull_obstacles);
+    reflected_obstacles = code.growObstacles(original_obstacles);
+    grown_obstacles = code.replaceWithConvexHulls(reflected_obstacles);
 
     visibility_graph = code.constructVisibilityGraph(original_obstacles, start, goal);
     code.dijkstra(visibility_graph, start, goal);

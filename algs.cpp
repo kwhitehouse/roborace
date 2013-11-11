@@ -73,47 +73,63 @@ vector<Polygon*> algs::growObstacles(vector<Polygon*> &obstacles)
 // Algorithm modified from: 
 // http://en.wikibooks.org/wiki/Algorithm_Implementation/Geometry/Convex_hull/Monotone_chain
 
-void algs::replaceWithConvexHulls(vector<Polygon*> &obstacles)
+bool sortByAngle(std::pair<coord, pair<float, float> > pair1, std::pair<coord, pair< float, float> > pair2)
 {
+        if (pair1.second.first == pair2.second.first)
+                return pair1.second.second < pair2.second.second;
+        return pair1.second.first < pair2.second.first;
+}
 
-    
+bool strictlyLeft(const coord &a, const coord &b, const coord &c)
+{
+      return ((b.x - a.x)*(c.y - a.y) - (b.y - a.y)*(c.x - a.x)) < 0;
+}
+
+vector<Polygon *> algs::replaceWithConvexHulls(const vector<Polygon*> &obstacles)
+{
     //Create vector of polygon* to save convex hull of obstacles
-        vector< Polygon* > newObstacles;
+    vector<Polygon*> hulls;
     
-    std::vector<Polygon*>::iterator it;
-        
-    //iterate through all polygons
-        for( it = obstacles.begin(); it != obstacles.end(); ++it) {
-                
-        //create new coordinate set which will hold hull coordinates
-                vector<coord> points = (*it)->coords_;
-                int n = (int)points.size();
-                int k = 0;
-                vector<coord> hull(2*n);
-        
-                //sort points lexicographically
-                sort(points.begin(), points.end());
-        
-                //build lower hull
-                for(int i = 0; i < n; i++){
-                        while(k >=2 && cross( hull[k-2], hull[k-1], points[i]) <= 0) k--;
-                        hull[k++] = points[i];
-                }
-        
-                //build upper hull
-                for(int i = n - 2, t = k+1; i >= n; i--){
-                        while(k >= t && cross( hull[k-2], hull[k-1], points[i]) <= 0) k--;
-                        hull[k++] = points[i];
-                }
-        
-                hull.resize(k);
-        
-                //push new coord set to new Obstacles.
-                newObstacles.push_back(new Polygon(hull));
+    /*find rightmost, lowest point*/
+    coord rl = obstacles.front()->coords_.front();
+    std::vector<Polygon*>::const_iterator itp;
+    for(itp = obstacles.begin(); itp != obstacles.end(); ++itp) {
+        vector<coord> coords = (*itp)->coords_;
+        std::vector<coord>::iterator itc;
+        for(itc = coords.begin(); itc != coords.end(); ++itc) {
+            if(itc->x > rl.x && itc->y > rl.y)             
+                rl = *itc;
         }
-    //set obstacles pointer to newObstacles memory location
-        obstacles = newObstacles;
-    
+
+        /*sort angles around rightmost lowest point*/
+        std::vector<pair<coord, pair<float, float> > > angles;
+        for(itc = coords.begin(); itc != coords.end(); ++itc) {
+            float angle = atan2(itc->y - rl.y, itc->x - rl.x);
+            float distance = sqrt(pow(itc->x - rl.x, 2.0) + pow(itc->y - rl.y, 2.0));
+            angles.push_back(make_pair(*itc, make_pair(angle, distance))); 
+        }
+        sort(angles.begin(), angles.end(), sortByAngle);
+
+        /*push last and first sorted angle points onto stack*/
+        vector<coord> stack;
+        stack.push_back(angles.back().first);
+        stack.push_back(angles.front().first);
+        
+        /*if point is strictly left push onto stack and increment, else pop stack*/ 
+        vector<coord>::size_type i = 1;
+        while(i < angles.size()){
+               if(strictlyLeft(angles[i].first, stack.back(), stack[stack.size() - 2])){
+                        stack.push_back(angles[i].first);
+                        ++i;
+                }
+                else
+                        stack.pop_back();
+        } 
+
+        hulls.push_back(new Polygon(stack));
+    }
+    return hulls;
+
 }
 
 //Given input of 3 coordinates, calculate z-component of 3-d
@@ -329,6 +345,7 @@ void algs::dijkstra(map<coord, vector<coord> > &visibility_graph, const coord &s
                 cout << "dist " << dist << endl;
                 cout << distances[v] << endl;
                 if(dist < distances[v]) {
+                    cout << "pushed back" << endl;
                     distances[v] = dist;
                     previous[v] = u;
                     queue.push_back(v);
