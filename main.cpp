@@ -37,6 +37,7 @@ void display()
     vector<Polygon *>::iterator itp;
     vector<coord>::iterator itc;
 
+/*
     for(itp = original_obstacles.begin(); itp != original_obstacles.end(); ++itp){
         glPushMatrix();
         glBegin(GL_LINE_LOOP);
@@ -50,7 +51,7 @@ void display()
         glPopMatrix();
     }
 
-    
+  */  
     for(itp = grown_obstacles.begin(); itp != grown_obstacles.end(); ++itp){
         glPushMatrix();
         glBegin(GL_LINE_LOOP);
@@ -122,16 +123,25 @@ int main (int argc, char * argv[])
    vector<Polygon *> squares; 
    vector<coord> c1;
    vector<coord> c2;
+   vector<coord> c3;
    c1.push_back(coord(0, 0));
    c1.push_back(coord(1, 0));
    c1.push_back(coord(1, 1));
    c1.push_back(coord(0, 1));
+
    c2.push_back(coord(4, 2));
    c2.push_back(coord(6, 2));
    c2.push_back(coord(6, 4));
    c2.push_back(coord(4, 4));
+
+   c3.push_back(coord(5, -2));
+   c3.push_back(coord(6, -2));
+   c3.push_back(coord(6, -4));
+   c3.push_back(coord(5, -4));
+ 
    squares.push_back(new Polygon(c1));
    squares.push_back(new Polygon(c2));
+   squares.push_back(new Polygon(c3));
    original_obstacles = squares;
 
     grown_obstacles = original_obstacles;
