@@ -10,45 +10,20 @@
 
 using namespace std;
 
-
-void display(void){
-    glClearColor(1.0f, 1.0f, 1.0f, 1.0f); // Set background color to black and opaque
-    glClear(GL_COLOR_BUFFER_BIT);         // Clear the color buffer (background)
-
-    // Draw a Red 1x1 Square centered at origin
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    glBegin(GL_POLYGON);              // Each set of 4 vertices form a quad
-    glColor3f(1.0f, 0.0f, 0.0f); // Red
-
-    glVertex2f( 0.5f,  0.5f);
-    glVertex2f(-0.5f,  0.5f);
-    glVertex2f(-0.5f,  0.6f);
-
-    glEnd();
-
-    glFlush();
-}
-
-//	hw4 team 11
-//	RoboRace 2013
+/*
+	hw4 team 11
+	RoboRace 2013
+*/
 int main (int argc, char * argv[])
 {
-        /*
-        glutInit(&argc, argv);
-        glutCreateWindow("Roborace");
-        glutInitWindowSize(320, 320);
-        glutDisplayFunc(display);
-        glutMainLoop();
-        return 0;
-        */
-        
-
-    if (argc != 3) { //bad input
+    /*parse cmd line args*/   
+    if (argc != 3) { 
         cout << "usage: hw4_team11 <obstacles_file>.txt <start_goal_file>.txt " << endl;
         return -1;
     }
+    /* get current time */
     time_t timer;
-    time(&timer);  /* get current time */
+    time(&timer);  
 
     Polygon *boundary;
     vector< Polygon* > obstacles;
