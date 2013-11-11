@@ -67,27 +67,25 @@ void Parser::parseObstacles (
     in.close();
 }
 
-void Parser::parseStartGoal (
-        const char *file,
-        coord &start,
-        coord &goal)
+void Parser::parseStartGoal (const char *file, coord &start, coord &goal)
 {
-
     ifstream in(file);
-    char buffer[129];
-
     double x, y;
-    in.getline(buffer,128);
-    buffer[in.gcount()] = 0;
-    istringstream iss(buffer);
-    iss >> x >> y;
+    if(in.is_open()) {
+        string s;
+        getline(in, s);
+        istringstream iss_s(s);
+        iss_s >> x >> y;
+        start = coord(x,y);
 
-    start = coord(x,y);
-
-    in.getline(buffer,128);
-    buffer[in.gcount()] = 0;
-//    iss(buffer);
-    iss >> x >> y;
-    goal = coord(x,y);
+        string g;
+        getline(in, g);
+        istringstream iss_g(g);
+        iss_g >> x >> y;
+        goal = coord(x,y);
+        cout << "goal " << x << " " <<  y << endl;
+        
+        in.close();
+    }
 
 }
