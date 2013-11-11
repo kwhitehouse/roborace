@@ -144,7 +144,7 @@ void algs::removeHullsPassed(vector<Polygon*> &obstacles)
 
 
 
-
+/*
 bool sortByAngles(std::pair<coord, std::pair<double, double> > pair1, std::pair<coord, std::pair<double,double> > pair2)
 {
 
@@ -159,11 +159,51 @@ bool sortByDistances(std::pair<std::pair<coord, coord>, double> pair1, std::pair
 {
     return pair1.second < pair2.second;
 }
+*/
+
+map<coord, vector<coord> > algs::naiveVisibilityGraph(const vector<Polygon *> &obstacles)
+{
+    map<coord, vector<coord> > visibility_graph;
+
+    //create vectors of vertices and edges of obstacles
+    vector<pair<coord, coord> > edges;
+    vector<coord> vertices;
+    for(vector<Polygon *>::size_type i = 0; i < obstacles.size(); ++ i) {
+        vector<coord> coords = obstacles[i]->coords_;
+        for(vector<coord>::size_type j = 0; j < coords.size(); ++j) {
+            edges.push_back(make_pair(coords[j], coords[(j + 1)%coords.size()]));    
+            vertices.push_back(coords[j]);
+        }
+    }
+
+    //iterate through obstacles, draw lines to each vertex and check if they intersect obstacle edges
+    for(int i = 0; i < obstacles.size(); ++ i) {
+        vector<coord> coords = obstacles[i]->coords_;
+        for(int j = 0; j < coords.size(); ++j) {
+            //initialize visible with all vertices
+            vector<coord> visible(vertices);
+
+            for(int k = 0; k < edges.size(); ++k){ 
+                vector<coord>::iterator iter = visible.begin();
+                while(iter != visible.end()){
+                    //if edge intersects with anything, remove from visible coords
+                    if(segmentsIntersect(coords[j], *iter, edges[k].first, edges[k].second))
+                        visible.erase(iter);
+                    else
+                        ++iter;
+                }
+            }
+            visibility_graph[coords[j]] = visible;
+        }
+    }
+
+
+    return visibility_graph;
+}
 
 /*
  Input: a set of disjoint polygonal obstacles
  Output: the visibility graph -- map from each vertex to all vertices visible from that vertex
- */
 map<coord, vector<coord> > algs::visibilityGraph(const vector<Polygon *> &obstacles)
 {
     map<coord, vector<coord> > visibility_graph;
@@ -181,8 +221,30 @@ map<coord, vector<coord> > algs::visibilityGraph(const vector<Polygon *> &obstac
     }
     return visibility_graph;
 }
+*/
 
+bool algs::segmentsIntersect(const coord &c1, const coord &c2, const coord &c3, const coord &c4)
+{
+    double denominator = (c1.x - c2.x)*(c3.y - c4.y) - (c1.y - c2.y)*(c3.x - c4.x); 
 
+    //lines are parallel, if they are the same line they are visible anyway so return false
+    if (denominator == 0)
+        return false;
+
+    coord intersection;
+    intersection.x = (c1.x*c2.y - c1.y*c2.x)*(c3.x - c4.x) - (c1.x - c2.x)*(c3.x*c4.y - c3.y*c4.x);
+    intersection.x /= denominator;
+    intersection.y = (c1.x*c2.y - c1.y*c2.x)*(c3.y - c4.y) - (c1.y - c2.y)*(c3.x*c4.y - c3.y*c4.x);
+    intersection.y /= denominator;
+
+    //check if intersection is within segments (c1 and c2)
+    return intersection.x <= max(c1.x, c2.x) &&
+           intersection.x >= min(c1.x, c2.x) && 
+           intersection.y <= max(c1.y, c2.y) && 
+           intersection.y >= min(c1.y, c2.y);
+}
+
+/*
 double linesIntersect(const coord &c1, const coord &c2, const coord &c3, const coord &c4)
 {
     double denominator = (c1.x - c2.x)*(c3.y - c4.y) - (c1.y - c2.y)*(c3.x - c4.x); 
@@ -190,7 +252,12 @@ double linesIntersect(const coord &c1, const coord &c2, const coord &c3, const c
     //lines are parallel
     if (denominator == 0) {
         //check if they are the same line
-        }
+        double slope = (c3.y - c4.y)/(c3.x - c4.x);
+        double b1 = c1.y - slope*c1.x;
+        double b3 = c3.y - slope*c3.x;
+        return (b1 == b3) ? 0 : -1;
+
+    }
     else{
         coord intersection;
         intersection.x = (c1.x*c2.y - c1.y*c2.x)*(c3.x - c4.x) - (c1.x - c2.x)*(c3.x*c4.y - c3.y*c4.x);
@@ -199,15 +266,18 @@ double linesIntersect(const coord &c1, const coord &c2, const coord &c3, const c
         intersection.y /= denominator;
 
         //check if intersection is within segments (c1 and c2)
+        if(intersection.x < max(c1.x, c2.x) && intersection.x > min(c1.x, c2.x) && intersection.y < max(c1.y, c2.y) && intersection.y > min(c1.y, c2.y)) {
+                //calculate distance and return;
+                return 0;
+        }
+        else
+                return -1;
     }
-        return -1.0;
 }
-
-
+*/
 /*
  Input: a set of obstacles and a point
  Output: the set of obstacle vertices visible from the given point
- */
 vector<coord> algs::visibleVertices(const coord &point, const vector<Polygon*> &obstacles)
 {
     
@@ -268,10 +338,14 @@ vector<coord> algs::visibleVertices(const coord &point, const vector<Polygon*> &
   
 }
 
-bool algs::visible(const coord &vertex)
+bool algs::visible(const coord &point)
 {
+    
     return true;
 }
+*/
+
+
 
 // Using the coords present in each Polygon within obstacles, the
 // curr_pos, and the goal, find the best path to the goal.

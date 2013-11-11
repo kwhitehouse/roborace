@@ -33,17 +33,15 @@ void display(void){
 //	RoboRace 2013
 int main (int argc, char * argv[])
 {
-
+        /*
         glutInit(&argc, argv);
         glutCreateWindow("Roborace");
         glutInitWindowSize(320, 320);
         glutDisplayFunc(display);
         glutMainLoop();
         return 0;
+        */
         
-
-
-
 
     if (argc != 3) { //bad input
         cout << "usage: hw4_team11 <obstacles_file>.txt <start_goal_file>.txt " << endl;
@@ -81,7 +79,12 @@ int main (int argc, char * argv[])
     for(it = obstacles.begin(); it != obstacles.end(); ++it)
         cout << **it << endl;
 
-    //map<coord, vector<coord> > visibility_graph = code.visibilityGraph(obstacles);
+    map<coord, vector<coord> > visibility_graph = code.naiveVisibilityGraph(obstacles);
+    cout << "VISIBILITY GRAPH" << endl;
+    map<coord, vector<coord> >::iterator vg_iter;
+    for(vg_iter = visibility_graph.begin(); vg_iter != visibility_graph.end(); ++vg_iter) {
+        cout << vg_iter->second.size() << endl;
+    }
 
      vector<coord> path;
      coord curr_pos = start;
