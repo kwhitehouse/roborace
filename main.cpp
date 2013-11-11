@@ -18,6 +18,7 @@ coord start;
 coord goal;
 
 vector<Polygon *> original_obstacles;
+vector<Polygon *> reflected_obstacles;
 vector<Polygon *> grown_obstacles;
 map<coord, vector<coord> > visibility_graph;
 
@@ -33,27 +34,19 @@ void display()
     glClearColor(1.0f, 1.0f, 1.0f, 1.0f); // Set background color to white
     glClear(GL_COLOR_BUFFER_BIT);         // Clear the color buffer (background)
 
+    glColor3f(1.0f,0.0f,0.0f);
+    glPointSize(8.0f);
+    glBegin(GL_POINTS);
+    glVertex2f((GLfloat) start.x, (GLfloat) start.y);
+    glVertex2f((GLfloat) 10.56, (GLfloat) 0.03);
+    //glVertex2f((GLfloat) goal.x, (GLfloat) goal.y);
+    glEnd();
+
     vector<coord> cset; 
     vector<Polygon *>::iterator itp;
     vector<coord>::iterator itc;
 
-/*
-    for(itp = original_obstacles.begin(); itp != original_obstacles.end(); ++itp){
-        glPushMatrix();
-        glBegin(GL_LINE_LOOP);
-        glColor3f(1.0f, 0.0f, 0.0f);
-
-        cset = (*itp)->coords_;
-        for(itc = cset.begin(); itc != cset.end(); ++itc)
-            glVertex2f((GLfloat) itc->x, (GLfloat) itc->y);
-
-        glEnd();
-        glPopMatrix();
-    }
-
-  */  
-    for(itp = grown_obstacles.begin(); itp != grown_obstacles.end(); ++itp){
-        glPushMatrix();
+   for(itp = grown_obstacles.begin(); itp != grown_obstacles.end(); ++itp){
         glBegin(GL_LINE_LOOP);
         glColor3f(0.0f, 0.0f, 1.0f); 
 
@@ -62,13 +55,25 @@ void display()
             glVertex2f((GLfloat) itc->x, (GLfloat) itc->y);
 
         glEnd();
-        glPopMatrix();
     }
-   
+
+
+
+    for(itp = original_obstacles.begin(); itp != original_obstacles.end(); ++itp){
+        glBegin(GL_LINE_LOOP);
+        glColor3f(1.0f, 0.0f, 0.0f);
+
+        cset = (*itp)->coords_;
+        for(itc = cset.begin(); itc != cset.end(); ++itc)
+            glVertex2f((GLfloat) itc->x, (GLfloat) itc->y);
+
+        glEnd();
+    }
+
+      /* 
     map<coord, vector<coord> >::iterator itv;
     for(itv = visibility_graph.begin(); itv != visibility_graph.end(); ++itv) {
         for(itc = itv->second.begin(); itc != itv->second.end(); ++itc){
-            glPushMatrix();
             glBegin(GL_LINE_LOOP);
             glColor3f(0.0, 1.0, 1.0);
 
@@ -76,10 +81,9 @@ void display()
             glVertex2f((GLfloat) itc->x, (GLfloat) itc->y); 
 
             glEnd();
-            glPopMatrix();
         } 
     }
-
+*/
 
     glFlush();
 }
@@ -144,8 +148,7 @@ int main (int argc, char * argv[])
    squares.push_back(new Polygon(c3));
    //original_obstacles = squares;
 
-    grown_obstacles = original_obstacles;
-    code.growObstacles(grown_obstacles);
+    grown_obstacles = code.growObstacles(original_obstacles);
     
     vector< Polygon* > hull_obstacles(grown_obstacles);
     code.replaceWithConvexHulls(hull_obstacles);
