@@ -50,6 +50,7 @@ void display()
         glPopMatrix();
     }
 
+    
     for(itp = grown_obstacles.begin(); itp != grown_obstacles.end(); ++itp){
         glPushMatrix();
         glBegin(GL_LINE_LOOP);
@@ -62,13 +63,13 @@ void display()
         glEnd();
         glPopMatrix();
     }
-
+   
     map<coord, vector<coord> >::iterator itv;
     for(itv = visibility_graph.begin(); itv != visibility_graph.end(); ++itv) {
         for(itc = itv->second.begin(); itc != itv->second.end(); ++itc){
             glPushMatrix();
             glBegin(GL_LINE_LOOP);
-            glColor3f(1.0, 0, 1.0);
+            glColor3f(0.0, 1.0, 1.0);
 
             glVertex2f((GLfloat) itv->first.x, (GLfloat) itv->first.y);
             glVertex2f((GLfloat) itc->x, (GLfloat) itc->y); 
@@ -100,6 +101,7 @@ void rend(int argc, char **argv)
 */
 int main (int argc, char * argv[])
 {
+   
     /*parse cmd line args*/   
     if (argc != 3) { 
         cout << "usage: hw4_team11 <obstacles_file>.txt <start_goal_file>.txt " << endl;
@@ -117,13 +119,28 @@ int main (int argc, char * argv[])
     /*compute: grown obstacles, convex hulls, visibility graph*/
     algs code = algs(start, goal);
 
+   vector<Polygon *> squares; 
+   vector<coord> c1;
+   vector<coord> c2;
+   c1.push_back(coord(0, 0));
+   c1.push_back(coord(1, 0));
+   c1.push_back(coord(1, 1));
+   c1.push_back(coord(0, 1));
+   c2.push_back(coord(4, 2));
+   c2.push_back(coord(6, 2));
+   c2.push_back(coord(6, 4));
+   c2.push_back(coord(4, 4));
+   squares.push_back(new Polygon(c1));
+   squares.push_back(new Polygon(c2));
+   original_obstacles = squares;
+
     grown_obstacles = original_obstacles;
     code.growObstacles(grown_obstacles);
     
     vector< Polygon* > hull_obstacles(grown_obstacles);
     code.replaceWithConvexHulls(hull_obstacles);
 
-    visibility_graph = code.constructVisibilityGraph(hull_obstacles);
+    visibility_graph = code.constructVisibilityGraph(original_obstacles);
 
     /*render in gui*/
     rend(argc, argv);

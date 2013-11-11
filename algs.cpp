@@ -146,19 +146,31 @@ map<coord, vector<coord> > algs::constructVisibilityGraph(const vector<Polygon *
 {
     map<coord, vector<coord> > visibility_graph;
 
-    //create vectors of vertices and edges of obstacles
+    //create vectors of edges of obstacles
     vector<pair<coord, coord> > edges;
-    vector<coord> vertices;
     for(vector<Polygon *>::size_type i = 0; i < obstacles.size(); ++ i) {
         vector<coord> coords = obstacles[i]->coords_;
         for(vector<coord>::size_type j = 0; j < coords.size(); ++j) {
             edges.push_back(make_pair(coords[j], coords[(j + 1)%coords.size()]));    
-            vertices.push_back(coords[j]);
         }
     }
 
+
     //iterate through obstacles, draw lines to each vertex and check if they intersect obstacle edges
-    for(int i = 0; i < obstacles.size(); ++ i) {
+    for(vector<Polygon *>::size_type i = 0; i < obstacles.size(); ++ i) {
+
+        //create vertices of all objects except for yourself
+        vector<coord> vertices;
+        for(vector<Polygon *>::size_type m = 0; m < obstacles.size(); ++m) {
+            vector<coord> coords = obstacles[m]->coords_;
+            if(i != m){
+                for(vector<coord>::size_type n = 0; n < coords.size(); ++n) {
+                    vertices.push_back(coords[n]);
+                }
+            }
+        }
+
+        //loop through vertices of current obstacle
         vector<coord> coords = obstacles[i]->coords_;
         for(int j = 0; j < coords.size(); ++j) {
             //initialize visible with all vertices
@@ -184,23 +196,51 @@ map<coord, vector<coord> > algs::constructVisibilityGraph(const vector<Polygon *
 
 bool algs::segmentsIntersect(const coord &c1, const coord &c2, const coord &c3, const coord &c4)
 {
+    cout << "intersect?" <<endl;
+    cout << c1.x << " " << c1.y << endl;    
+    cout << c2.x << " " << c2.y << endl;    
+    cout << c3.x << " " << c3.y << endl;    
+    cout << c4.x << " " << c4.y << endl;    
+
+
     double denominator = (c1.x - c2.x)*(c3.y - c4.y) - (c1.y - c2.y)*(c3.x - c4.x); 
 
     //lines are parallel, if they are the same line they are visible anyway so return false
-    if (denominator == 0)
+    if (denominator == 0 ){
+        cout << "no" <<endl;
         return false;
+        }
+
+    if (c1 == c3 || c1 == c4 || c2 == c3 || c2 == c4){
+        cout << "no" <<endl;
+        return false;
+        }
+
+
 
     coord intersection;
     intersection.x = (c1.x*c2.y - c1.y*c2.x)*(c3.x - c4.x) - (c1.x - c2.x)*(c3.x*c4.y - c3.y*c4.x);
     intersection.x /= denominator;
     intersection.y = (c1.x*c2.y - c1.y*c2.x)*(c3.y - c4.y) - (c1.y - c2.y)*(c3.x*c4.y - c3.y*c4.x);
     intersection.y /= denominator;
+    cout << "int: " << intersection.x << " " << intersection.y << endl;
 
     //check if intersection is within segments (c1 and c2)
-    return intersection.x <= max(c1.x, c2.x) &&
+  if(      intersection.x <= max(c1.x, c2.x) &&
            intersection.x >= min(c1.x, c2.x) && 
+           intersection.x <= max(c3.x, c4.x) &&
+           intersection.x >= min(c3.x, c4.x) && 
            intersection.y <= max(c1.y, c2.y) && 
-           intersection.y >= min(c1.y, c2.y);
+           intersection.y >= min(c1.y, c2.y) &&
+           intersection.y <= max(c3.y, c4.y) && 
+           intersection.y >= min(c3.y, c4.y))
+        {
+        cout << "yes"<<endl;
+        return true;
+        }
+cout << "no"<<endl;
+return false;
+
 }
 
 // Using the coords present in each Polygon within obstacles, the
