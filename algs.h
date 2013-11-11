@@ -17,34 +17,37 @@ struct bid_edge //bi-directional edge
 
 class algs
 {
-public:
-	algs(const coord &start, const coord &gol): goal(gol), curr_pos(start), finished(false) {}
+    public:
+        algs(const coord &start, const coord &gol): goal(gol), curr_pos(start), finished(false) {}
 
-	void growObstacles(vector<Polygon*> &obstacles);
+        void growObstacles(vector<Polygon*> &obstacles);
 
-	void replaceWithConvexHulls(vector<Polygon*> &obstacles);
+        void replaceWithConvexHulls(vector<Polygon*> &obstacles);
 
-	void removeHullsPassed(vector<Polygon*> &obstacles);
-    
-    double cross(coord &p, coord &q, coord &r);
-    
-    
-    std::map<coord, vector<coord> > visibilityGraph(const std::vector<Polygon *> &obstacles);
-    
-    std::vector<coord> visibleVertices(const coord &point, const std::vector<Polygon*> &obstacles);
-   
-    bool visible(const coord &vertex);
+        void removeHullsPassed(vector<Polygon*> &obstacles);
 
-    void dijkstra(map<coord, vector<coord> > &visibility_graph, const coord &source);
+        double cross(coord &p, coord &q, coord &r);
 
-	void pathPlan(vector<coord> &path, double &angle, double &dist);
+        bool segmentsIntersect(const coord &, const coord &, const coord &, const coord &);
 
-	void renderVisibilityGraph(int map_id, vector<coord> &path, Polygon &boundary, vector<Polygon*> &o_obs, vector<Polygon*> &g_obs);
+        std::map<coord, vector<coord> > naiveVisibilityGraph(const std::vector<Polygon *> &obstacles);
 
-	coord goal;
-	coord curr_pos;
-	bool finished;
-	vector<bid_edge> potential_paths;
+        //std::map<coord, vector<coord> > visibilityGraph(const std::vector<Polygon *> &obstacles);
+
+        //std::vector<coord> visibleVertices(const coord &point, const std::vector<Polygon*> &obstacles);
+
+        //bool visible(const coord &vertex);
+
+        void dijkstra(map<coord, vector<coord> > &visibility_graph, const coord &source);
+
+        void pathPlan(vector<coord> &path, double &angle, double &dist);
+
+        void renderVisibilityGraph(int map_id, vector<coord> &path, Polygon &boundary, vector<Polygon*> &o_obs, vector<Polygon*> &g_obs);
+
+        coord goal;
+        coord curr_pos;
+        bool finished;
+        vector<bid_edge> potential_paths;
 };
 
 #endif
