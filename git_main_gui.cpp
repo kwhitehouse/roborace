@@ -12,6 +12,9 @@
 using namespace std;
 vector< Polygon* > orig_obs;
 vector< Polygon* > grow_obs;
+vector< Polygon* > hull_obs;
+coord start;
+coord goal;
 void display(){
 
     glMatrixMode(GL_PROJECTION);
@@ -28,19 +31,26 @@ void display(){
     // glBegin(GL_POLYGON);              // Each set of 4 vertices form a quad
     // glColor3f(1.0f, 0.0f, 0.0f); // Red
 
-    // glVertex2f( 0.5f,  0.5f);
-    // glVertex2f(-0.5f,  0.5f);
-    // glVertex2f(-0.5f,  0.6f);
-
-    // glEnd();
-
-    // glFlush();
     glClearColor(1.0f, 1.0f, 1.0f, 1.0f); // Set background color to white
     glClear(GL_COLOR_BUFFER_BIT);         // Clear the color buffer (background)
-    // Draw a Red 1x1 Square centered at origin
-    cout << orig_obs.size() <<endl;
+    
 
-    vector<coord> cset = (*grow_obs[0]).coords_;
+    //draw start + end points
+    glColor3f(1.0f,0.0f,0.0f);
+    glPointSize(8.0f);
+    glBegin(GL_POINTS);
+    glVertex2f((GLfloat) start.x, (GLfloat) start.y);
+    glVertex2f((GLfloat) 10.56, (GLfloat) 0.03);
+    //glVertex2f((GLfloat) goal.x, (GLfloat) goal.y);
+    glEnd();
+
+    //hardcoding x, y
+
+
+    // Draw a Red 1x1 Square centered at origin
+    // cout << grow_obs.size() <<endl;
+
+    // vector<coord> cset = (*grow_obs[0]).coords_;
     // cout << cset[0].x << cset[0].y << endl;
     // cout << cset[1].x << cset[1].y << endl;
     // cout << cset[2].x << cset[2].y << endl;
@@ -63,26 +73,7 @@ void display(){
     // glFlush();
     
     vector<Polygon *>::iterator it;
-    glBegin(GL_LINE_LOOP); 
-    for(it = orig_obs.begin(); it != orig_obs.end(); ++it){
-        //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-        //glBegin(GL_POLYGON);              // Each set of 4 vertices form a quad
-        //glBegin(GL_LINE_LOOP); 
-        glPushMatrix();
-        glBegin(GL_LINE_LOOP);
-        glColor3f(1.0f, 0.0f, 0.0f); // Re
-        vector<coord> cset = (*it)->coords_;
-        cout << "new polygon" << endl;
-        for(int i = 0; i < (int)cset.size(); ++i){
-            cout << cset[i].x;
-            cout << cset[i].y << endl;
-            glVertex2f((GLfloat) cset[i].x, (GLfloat) cset[i].y);
-        }
-        glEnd();
-        glPopMatrix();
-        //glFlush();
-        //glEnd();
-    }
+
     //glFlush();
 
     
@@ -91,29 +82,53 @@ void display(){
         //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         //glBegin(GL_POLYGON);              // Each set of 4 vertices form a quad
         //glBegin(GL_LINE_LOOP); 
+        //glPushMatrix();
+        
+        glBegin(GL_LINE_LOOP);
         glColor3f(0.f, 1.0f, 0.0f); // Re
         vector<coord> cset = (*it)->coords_;
         cout << "grow polygon" << endl;
         for(int i = 0; i < (int)cset.size(); ++i){
             cout << cset[i].x;
             cout << cset[i].y << endl;
-            //glVertex2f((GLfloat) cset[i].x, (GLfloat) cset[i].y);
+            glVertex2f((GLfloat) cset[i].x, (GLfloat) cset[i].y);
         }
         //glFlush();
-        //glEnd();
+        glEnd();
+        //glPopMatrix();
+        glFlush();
     }
 
-    glBegin(GL_LINE_LOOP); 
-    glColor3f(0.f, 0.0f, 1.0f);
-    glVertex2f(1.0f, 10*0.0f);
-    glVertex2f(10.f, 5.f);
-    glVertex2f(05.f, 05.f);
-    glEnd();
+    // glBegin(GL_LINE_LOOP); 
+    // glColor3f(0.f, 0.0f, 1.0f);
+    // glVertex2f(1.0f, 10*0.0f);
+    // glVertex2f(10.f, 5.f);
+    // glVertex2f(05.f, 05.f);
+    // glEnd();
 
-    glFlush();
-    
-}
+    // glFlush();
 
+
+    for(it = orig_obs.begin(); it != orig_obs.end(); ++it){
+        //glBegin(GL_LINE_LOOP); 
+        //glPushMatrix();
+        glBegin(GL_LINE_LOOP);
+        glColor3f(1.0f, 0.0f, 0.0f); // Red
+        vector<coord> cset = (*it)->coords_;
+        cout << "new polygon" << endl;
+        for(int i = 0; i < (int)cset.size(); ++i){
+            cout << cset[i].x;
+            cout << cset[i].y << endl;
+            glVertex2f((GLfloat) cset[i].x, (GLfloat) cset[i].y);
+        }
+        //glFlush();
+        glEnd();
+        glFlush();
+        //glPopMatrix();
+       
+       
+       } //glEnd();
+    }
 
 
 //	hw4 team 11
@@ -144,9 +159,11 @@ int main (int argc, char * argv[])
     Parser parser;
     parser.parseObstacles(argv[1], boundary, obstacles);
 
-    coord start;
-    coord goal;
+    // coord start;
+    // coord goal;
     parser.parseStartGoal(argv[2], start, goal);
+    
+    //perhaps redundant..
     orig_obs = obstacles;
 
     algs code = algs(start, goal);
@@ -159,12 +176,11 @@ int main (int argc, char * argv[])
 
 
 
-    code.growObstacles(obstacles);
+    grow_obs = code.growObstacles(obstacles);
     
     cout << "GROW OBSTACLES" << endl;
     for(it = obstacles.begin(); it != obstacles.end(); ++it)
         cout << **it << endl;
-    grow_obs = obstacles;
 
     code.replaceWithConvexHulls(obstacles);
 
