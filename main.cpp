@@ -154,6 +154,8 @@ int main (int argc, char * argv[])
     code.replaceWithConvexHulls(hull_obstacles);
 
     visibility_graph = code.constructVisibilityGraph(original_obstacles);
+    code.dijkstra(visibility_graph, start);
+        cout << "done with dijkstra" << endl;
 
     /*render in gui*/
     rend(argc, argv);

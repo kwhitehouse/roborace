@@ -176,7 +176,7 @@ map<coord, vector<coord> > algs::constructVisibilityGraph(const vector<Polygon *
             //initialize visible with all vertices
             vector<coord> visible(vertices);
 
-            for(int k = 0; k < edges.size(); ++k){ 
+            for(vector<pair<coord, coord> >::size_type k = 0; k < edges.size(); ++k){ 
                 vector<coord>::iterator iter = visible.begin();
                 while(iter != visible.end()){
                     //if edge intersects with anything, remove from visible coords
@@ -244,6 +244,11 @@ bool algs::segmentsIntersect(const coord &c1, const coord &c2, const coord &c3, 
 
 }
 
+bool containsUnvisited(pair<coord, bool> vertex)
+{
+        return !vertex.second;
+}
+
 // Using the coords present in each Polygon within obstacles, the
 // curr_pos, and the goal, find the best path to the goal.
 // Continuously determine what vertices are reachable from the present position
@@ -260,27 +265,52 @@ bool algs::segmentsIntersect(const coord &c1, const coord &c2, const coord &c3, 
 //				 to perform optimally during RoboRace2013
 void algs::dijkstra(map<coord, vector<coord> > &visibility_graph, const coord &source)
 {
-    //map<coord, std::pair<coord, double> >
+    map<pair<coord, coord>, double> distances;
+    map<coord, bool> visited;
 
-    //vector<coord> visible_vertices = visibility_graph[source];
-    //map<coord, bool> visited;
+    vector<coord>::iterator iter_v;
+    map<coord, vector<coord> >::iterator iter_g;
 
-    /*
-    vector<coord> queue;
-    determineReachableCoords(source, obstacles, queue);
-    std::map<coord, bool> visited;
-    
-    while(!queue.isEmpty()){
-        coord = queue.pop_back();
-        
+    for(iter_g = visibility_graph.begin(); iter_g != visibility_graph.end(); ++iter_g) {
+        /*initialize all vertices as unvisited*/
+        visited[iter_g->first] = false;
+
+        for(iter_v = iter_g->second.begin(); iter_v != iter_g->second.end(); ++iter_v){
+            /*initialize all distances from source to each visible vertex*/
+            double d = sqrt(pow(iter_v->x - iter_g->first.x, 2.0) + pow(iter_v->y - iter_g->first.y, 2.0));
+            distances[make_pair(*iter_v, iter_g->first)] = d;
+        }
     }
-	vector<Polygon *>::iterator iter_obstacles;
-    for(iter_obstacles = obstacles.start(); iter_obstacles != obstacles.end(); ++iter_obstacles){
 
-    }
-     */
-    
+    /*mark source as visited*/
+    visited[source] = true;
 
+    /*while unvisited nodes exist*/
+    map<coord, bool>::iterator iter_u;
+    while(find_if(visited.begin(), visited.end(), containsUnvisited) != visited.end()) {
+        /*find closest vertex to current point*/
+        double closest_distance = INFINITY;
+        coord closest_vertex;
+        for(iter_u = visited.begin(); iter_u != visited.end(); ++iter_u) {
+            if(!iter_u->second && distances[make_pair(iter_u->first, source)] < closest_distance) {
+                closest_distance = distances[make_pair(iter_u->first, source)];
+                closest_vertex = iter_u->first;
+            }
+        }
+
+        visited[closest_vertex] = true;
+
+        /*look through unvisited neighbors of closest point*/
+        vector<coord> neighbors = visibility_graph[closest_vertex];
+        for(iter_v = neighbors.begin(); iter_v != neighbors.end(); ++iter_v) {
+            /*if not visited*/
+            if(!visited[*iter_v]) {
+                double dist = distances[make_pair(source, closest_vertex)] + distances[make_pair(closest_vertex, *iter_v)];
+                if(distances.find(make_pair(source, *iter_v)) == distances.end() || dist < distances[make_pair(source, *iter_v)]) 
+                    distances[make_pair(source, *iter_v)] = dist;
+            }
+        }
+   } 
 }
 
 // Given the curr_pos of the roomba and the path by which to follow
