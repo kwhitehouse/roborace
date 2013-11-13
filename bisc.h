@@ -1,5 +1,6 @@
 #ifndef BISC_H
 #define BISC_H
+extern "C"{
 
 #define BISC_SUCCESS  0
 #define BISC_ERR     -1
@@ -107,5 +108,6 @@ int biscDefineSong(unsigned char songNum, unsigned char *notes, unsigned char *n
 int biscPlaySong(unsigned char songNum);
 int biscBeep(void);
 int biscPlayFireflies(void);
-
+}
 #endif
+

@@ -103,6 +103,8 @@ void rend(int argc, char **argv)
 */
 int main (int argc, char * argv[])
 {
+
+    printf("%s\n", biscGetVersion());
    
     /*parse cmd line args*/   
     if (argc != 3) { 
