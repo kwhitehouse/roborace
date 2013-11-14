@@ -184,6 +184,20 @@ vector<coord> algs::visibleVertices(const vector<pair<coord, coord> > &edges, ve
     return visible;
 } 
 
+bool pointWithinPolygon(vector<coord> polygon, const coord &point)
+{
+    vector<Polygon *>::size_type i, j;
+    bool inside = false;
+
+    for (i = 0, j = polygon.size() - 1; i < polygon.size(); j = i++) {
+        if (((polygon[i].y > point.y) != (polygon[j].y > point.y)) &&
+                (point.x < (polygon[j].x - polygon[i].x) * (point.y - polygon[i].y) / (polygon[j].y - polygon[i].y) + polygon[i].x))
+            inside = !inside;
+    }
+    return inside;
+}
+
+
 map<coord, vector<coord> > algs::constructVisibilityGraph(const vector<Polygon *> &obstacles, const coord &start, const coord &goal)
 {
     map<coord, vector<coord> > visibility_graph;
@@ -211,7 +225,8 @@ map<coord, vector<coord> > algs::constructVisibilityGraph(const vector<Polygon *
             cout << "coords number: " << coords.size() << endl;
             if(i != m){
                 for(vector<coord>::size_type n = 0; n < coords.size(); ++n) {
-                    vertices.push_back(coords[n]);
+                        if(!pointWithinPolygon(obstacles[i]->coords_, coords[n]))
+                                vertices.push_back(coords[n]);
                 }
             }
         }
@@ -220,8 +235,12 @@ map<coord, vector<coord> > algs::constructVisibilityGraph(const vector<Polygon *
 
         //loop through vertices of current obstacle
         vector<coord> coords = obstacles[i]->coords_;
-        for(int j = 0; j < (int) coords.size(); ++j) {
-            visibility_graph[coords[j]] = visibleVertices(edges, vertices, coords[j]);
+        for(vector<coord>::size_type j = 0; j < coords.size(); ++j) {
+            vector<coord> visible_vertices = visibleVertices(edges, vertices, coords[j]);
+            visible_vertices.push_back(coords[(j + 1)%coords.size()]);
+            visible_vertices.push_back(coords[(j - 1 + coords.size())%coords.size()]);
+            
+            visibility_graph[coords[j]] = visible_vertices;
         }
     }
 
@@ -261,7 +280,7 @@ bool algs::segmentsIntersect(const coord &c1, const coord &c2, const coord &c3, 
         double d2 = sqrt(pow(intersection.x - c2.x, 2.0) + pow(intersection.y - c2.y, 2.0));
         double d3 = sqrt(pow(intersection.x - c3.x, 2.0) + pow(intersection.y - c3.y, 2.0));
         double d4 = sqrt(pow(intersection.x - c4.x, 2.0) + pow(intersection.y - c4.y, 2.0));
-        return !((d1 < 0.1 || d2 < 0.1) && (d3 < 0.1 || d4 < 0.1));
+        return !((d1 < 0.01 || d2 < 0.01) && (d3 < 0.01 || d4 < 0.01));
 
 
         //return !((intersection == c1 || intersection == c2) ||
