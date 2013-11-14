@@ -256,8 +256,16 @@ bool algs::segmentsIntersect(const coord &c1, const coord &c2, const coord &c3, 
         coord intersection;
         intersection.x = c1.x + (v * s.x);
         intersection.y = c1.y + (v * s.y);
-        return !((intersection == c1 || intersection == c2) && 
-               (intersection == c3 || intersection == c4));
+        
+        double d1 = sqrt(pow(intersection.x - c1.x, 2.0) + pow(intersection.y - c1.y, 2.0));
+        double d2 = sqrt(pow(intersection.x - c2.x, 2.0) + pow(intersection.y - c2.y, 2.0));
+        double d3 = sqrt(pow(intersection.x - c3.x, 2.0) + pow(intersection.y - c3.y, 2.0));
+        double d4 = sqrt(pow(intersection.x - c4.x, 2.0) + pow(intersection.y - c4.y, 2.0));
+        return !((d1 < 0.1 || d2 < 0.1) && (d3 < 0.1 || d4 < 0.1));
+
+
+        //return !((intersection == c1 || intersection == c2) ||
+          //     (intersection == c3 || intersection == c4));
     }
     
     return false;
