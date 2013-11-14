@@ -46,18 +46,7 @@ void display()
     vector<coord>::iterator itc;
 
 
-    for(itp = original_obstacles.begin(); itp != original_obstacles.end(); ++itp){
-        glBegin(GL_LINE_LOOP);
-        glColor3f(1.0f, 0.0f, 0.0f);
-
-        cset = (*itp)->coords_;
-        for(itc = cset.begin(); itc != cset.end(); ++itc)
-            glVertex2f((GLfloat) itc->x, (GLfloat) itc->y);
-
-        glEnd();
-    }
-
-
+    
    for(itp = grown_obstacles.begin(); itp != grown_obstacles.end(); ++itp){
         glBegin(GL_LINE_LOOP);
         glColor3f(0.0f, 0.0f, 1.0f); 
@@ -81,6 +70,24 @@ void display()
             glEnd();
         } 
     }
+
+    for(itp = original_obstacles.begin(); itp != original_obstacles.end(); ++itp){
+        glBegin(GL_LINE_LOOP);
+        glColor3f(1.0f, 0.0f, 0.0f);
+
+        cset = (*itp)->coords_;
+        for(itc = cset.begin(); itc != cset.end(); ++itc)
+            glVertex2f((GLfloat) itc->x, (GLfloat) itc->y);
+
+        glEnd();
+    }
+
+/*
+    glBegin(GL_POINTS);
+    glColor3f(1.0f, 0.0f, 1.0f);
+    glVertex2f(1.17153 ,2.17153);
+        glEnd();
+*/
 
     glFlush();
 }
@@ -128,13 +135,13 @@ int main (int argc, char * argv[])
    vector<coord> c3;
    c1.push_back(coord(0, 0));
    c1.push_back(coord(1, 0));
-   c1.push_back(coord(1, 1));
-   c1.push_back(coord(0, 1));
+   c1.push_back(coord(1, 2));
+   c1.push_back(coord(0, 2));
 
-   c2.push_back(coord(4, 2));
-   c2.push_back(coord(6, 2));
+   c2.push_back(coord(0, 1.8));
+   c2.push_back(coord(6, 1.8));
    c2.push_back(coord(6, 4));
-   c2.push_back(coord(4, 4));
+   c2.push_back(coord(0, 4));
 
    c3.push_back(coord(5, -2));
    c3.push_back(coord(6, -2));
@@ -143,8 +150,8 @@ int main (int argc, char * argv[])
  
    squares.push_back(new Polygon(c1));
    squares.push_back(new Polygon(c2));
-   squares.push_back(new Polygon(c3));
-//   original_obstacles = squares;
+//   squares.push_back(new Polygon(c3));
+   //original_obstacles = squares;
 
     reflected_obstacles = code.createReflections(original_obstacles);
     grown_obstacles = code.createConvexHulls(reflected_obstacles);

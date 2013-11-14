@@ -168,8 +168,8 @@ void algs::removeHullsPassed(vector<Polygon*> &obstacles)
 vector<coord> algs::visibleVertices(const vector<pair<coord, coord> > &edges, vector<coord> visible, const coord &vertex)
 {
 
-   cout << "visible vertices size: " << visible.size() << endl;
-   cout << "edges size: " << edges.size() << endl;
+   //cout << "visible vertices size: " << visible.size() << endl;
+   //cout << "edges size: " << edges.size() << endl;
 
     for(vector<pair<coord, coord> >::size_type k = 0; k < edges.size(); ++k){ 
         vector<coord>::iterator iter = visible.begin();
@@ -190,8 +190,8 @@ bool pointWithinPolygon(vector<coord> polygon, const coord &point)
     bool inside = false;
 
     for (i = 0, j = polygon.size() - 1; i < polygon.size(); j = i++) {
-        if (((polygon[i].y > point.y) != (polygon[j].y > point.y)) &&
-                (point.x < (polygon[j].x - polygon[i].x) * (point.y - polygon[i].y) / (polygon[j].y - polygon[i].y) + polygon[i].x))
+        if (((polygon[i].y >= point.y) != (polygon[j].y >= point.y)) &&
+                (point.x <= (polygon[j].x - polygon[i].x) * (point.y - polygon[i].y) / (polygon[j].y - polygon[i].y) + polygon[i].x))
             inside = !inside;
     }
     return inside;
@@ -211,36 +211,36 @@ map<coord, vector<coord> > algs::constructVisibilityGraph(const vector<Polygon *
         }
     }
 
-    cout << edges.size() << endl;
+    cout << "edges number: " << edges.size() << endl;
 
     //create vertices of all objects except for yourself
     vector<coord> vertices;
     
     //iterate through obstacles, draw lines to each vertex and check if they intersect obstacle edges
     for(vector<Polygon *>::size_type i = 0; i < obstacles.size(); ++ i) {
-
-        vertices.clear();
-        for(vector<Polygon *>::size_type m = 0; m < obstacles.size(); ++m) {
-            vector<coord> coords = obstacles[m]->coords_;
-            cout << "coords number: " << coords.size() << endl;
-            if(i != m){
-                for(vector<coord>::size_type n = 0; n < coords.size(); ++n) {
-                        if(!pointWithinPolygon(obstacles[i]->coords_, coords[n]))
-                                vertices.push_back(coords[n]);
+        vector<coord> coords_i = obstacles[i]->coords_;
+        for(vector<coord>::size_type j = 0; j < coords_i.size(); ++j) {
+            //construct vertices visible from current point (coords_i[j]) -- not including current polygon and test pointWithinPolygon
+            vertices.clear();
+            for(vector<Polygon *>::size_type m = 0; m < obstacles.size(); ++m) {
+                vector<coord> coords_m = obstacles[m]->coords_;
+                if(i != m && !pointWithinPolygon(coords_m, coords_i[j])){
+                    for(vector<coord>::size_type n = 0; n < coords_m.size(); ++n) {
+                           if(!pointWithinPolygon(coords_i, coords_m[n]))
+                                vertices.push_back(coords_m[n]);
+                    }
                 }
             }
-        }
+        cout << "checking vertex: " << coords_i[j].x << " ," << coords_i[j].y << endl;
+        cout << "visible number : " << vertices.size() << endl;
 
-        cout << "vertices number: " << vertices.size() << endl;
+        vector<coord> visible_vertices = visibleVertices(edges, vertices, coords_i[j]);
+        visible_vertices.push_back(coords_i[(j + 1)%coords_i.size()]);
+        visible_vertices.push_back(coords_i[(j - 1 + coords_i.size())%coords_i.size()]);
+        cout << "visible number : " << vertices.size() << endl;
 
-        //loop through vertices of current obstacle
-        vector<coord> coords = obstacles[i]->coords_;
-        for(vector<coord>::size_type j = 0; j < coords.size(); ++j) {
-            vector<coord> visible_vertices = visibleVertices(edges, vertices, coords[j]);
-            visible_vertices.push_back(coords[(j + 1)%coords.size()]);
-            visible_vertices.push_back(coords[(j - 1 + coords.size())%coords.size()]);
-            
-            visibility_graph[coords[j]] = visible_vertices;
+        visibility_graph[coords_i[j]] = visible_vertices;
+
         }
     }
 
