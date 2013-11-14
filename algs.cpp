@@ -18,45 +18,48 @@
 // Outputs:
 //   obstacles:  The same polygons with coordinates added to each.
 //                       polygon accounting for their growth regions
-vector<Polygon*> algs::growObstacles(vector<Polygon*> &obstacles)
+vector<Polygon*> algs::createReflections(vector<Polygon*> &obstacles)
 {
-    
-    
+
     //Growing dimensions
     double radius = 0.34306/2;
-        double dx = radius;
-        double dy = radius;
-    
-    //iterator for polygons
-        std::vector<Polygon*>::iterator it;
 
-    //New obstacle vector
-        vector< Polygon* > newObstacles;
-        
-    //iterate through all polygons
-        for(it = obstacles.begin(); it != obstacles.end(); ++it) {
-                
-        //create pointer to current polygon's vector of coordinates
-        vector<coord> cset = (*it)->coords_;
-    
-        int len = (int)cset.size();
-    
-        for(int i = 0; i < len; ++i){
-                        //get x coord, y coord
-                        double x = cset[i].x;
-                        double y = cset[i].y;
-                        //create new coordinate + push back onto coordSet
-                        cset.push_back(coord(x + dx, y + dy));
-            
-                }
-        newObstacles.push_back(new Polygon(cset));
-                //push new coord set to new Obstacles.
-                //newObstacles.push_back(new Polygon(coordSet));
+    //iterators
+    vector<Polygon*>::iterator itp;
+    vector<coord>::iterator itc;
+
+    //reflected obstacles to return
+    vector< Polygon* > reflected_obstacles;
+    vector< coord > reflected_coords;
+
+    double area, centroid_x, centroid_y; 
+    //iterate through all polygons and compute centroid
+    for(itp = obstacles.begin(); itp != obstacles.end(); ++itp) {
+        area = centroid_x = centroid_y = 0;
+        vector<coord> coords = (*itp)->coords_;
+        reflected_coords.clear();
+        for(vector<coord>::size_type i = 0; i < coords.size(); ++i) {
+            coord c1 =  coords[i];
+            coord c2 = coords[(i + 1)%coords.size()];
+            double a = c1.x*c2.y - c2.x*c1.y;
+            area += a;
+            centroid_x += (c1.x + c2.x)*a;
+            centroid_y += (c1.y + c2.y)*a;
         }
-        //set obstacles pointer to newObstacles memory location
-       return newObstacles;
-     
-     
+        area *= 0.5;
+        centroid_x /= (6 * area);
+        centroid_y /= (6 * area);
+
+        double dx, dy; 
+        //iterate through all polygons and extend vertices outwards by dx, dy
+        for(itc = coords.begin(); itc != coords.end(); ++itc) {
+            dx = (itc->x <= centroid_x) ? -radius : radius;   
+            dy = (itc->y <= centroid_y) ? -radius : radius;   
+            reflected_coords.push_back(coord(itc->x + dx, itc->y + dy));
+        }
+        reflected_obstacles.push_back(new Polygon(reflected_coords));
+    }
+    return reflected_obstacles;
 }
 
 // Removes unesseary coordinates from vector of polygons (obstacles)
@@ -75,21 +78,21 @@ vector<Polygon*> algs::growObstacles(vector<Polygon*> &obstacles)
 
 bool sortByAngle(std::pair<coord, pair<float, float> > pair1, std::pair<coord, pair< float, float> > pair2)
 {
-        if (pair1.second.first == pair2.second.first)
-                return pair1.second.second <= pair2.second.second;
-        return pair1.second.first < pair2.second.first;
+    if (pair1.second.first == pair2.second.first)
+        return pair1.second.second <= pair2.second.second;
+    return pair1.second.first < pair2.second.first;
 }
 
 bool strictlyLeft(const coord &a, const coord &b, const coord &c)
 {
-      return ((b.x - a.x)*(c.y - a.y) - (b.y - a.y)*(c.x - a.x)) < 0;
+    return ((b.x - a.x)*(c.y - a.y) - (b.y - a.y)*(c.x - a.x)) < 0;
 }
 
-vector<Polygon *> algs::replaceWithConvexHulls(const vector<Polygon*> &obstacles)
+vector<Polygon *> algs::createConvexHulls(const vector<Polygon*> &obstacles)
 {
     //Create vector of polygon* to save convex hull of obstacles
     vector<Polygon*> hulls;
-    
+
     /*find rightmost, lowest point*/
     std::vector<Polygon*>::const_iterator itp;
     for(itp = obstacles.begin(); itp != obstacles.end(); ++itp) {
@@ -141,7 +144,7 @@ vector<Polygon *> algs::replaceWithConvexHulls(const vector<Polygon*> &obstacles
 //      if pqr = clockwise turn: double > 0
 //      if pqr = colinear : double = -
 double algs::cross(coord &p, coord &q, coord &r){
-        return (q.x - p.x)*(r.y - p.y) - (r.x - p.x)*(q.x-p.x);
+    return (q.x - p.x)*(r.y - p.y) - (r.x - p.x)*(q.x-p.x);
 }
 
 // Given the vector of polygons (obstacles) and the member
@@ -155,8 +158,8 @@ double algs::cross(coord &p, coord &q, coord &r){
 //                               those obstacles yet to be passed
 void algs::removeHullsPassed(vector<Polygon*> &obstacles)
 {
-        //Kira
-        //code goes here
+    //Kira
+    //code goes here
 }
 
 
@@ -268,7 +271,7 @@ bool algs::segmentsIntersect(const coord &c1, const coord &c2, const coord &c3, 
 
 bool containsUnvisited(pair<coord, bool> vertex)
 {
-        return !vertex.second;
+    return !vertex.second;
 }
 
 // Using the coords present in each Polygon within obstacles, the
@@ -300,8 +303,8 @@ void algs::dijkstra(map<coord, vector<coord> > &visibility_graph, const coord &s
     /*initialize all distances from source to each visible vertex*/
     vector<coord>::iterator iter_v;
     for(iter_v = visibility_graph[source].begin(); iter_v != visibility_graph[source].end(); ++iter_v){
-            double d = sqrt(pow(iter_v->x - source.x, 2.0) + pow(iter_v->y - source.y, 2.0));
-            distances[*iter_v] = d;
+        double d = sqrt(pow(iter_v->x - source.x, 2.0) + pow(iter_v->y - source.y, 2.0));
+        distances[*iter_v] = d;
     }
 
     /*mark source as visited*/
@@ -327,10 +330,10 @@ void algs::dijkstra(map<coord, vector<coord> > &visibility_graph, const coord &s
         queue.erase(closest_vertex);
         /*mark closest, unvisited vertex as visited*/
         visited[u] = true;
-        
+
         cout << "u: " << u.x << " " << u.y << endl;
         if(u == goal)
-                return;
+            return;
 
         /*look through unvisited neighbors of closest point*/
         vector<coord> neighbors = visibility_graph[u];
@@ -353,14 +356,14 @@ void algs::dijkstra(map<coord, vector<coord> > &visibility_graph, const coord &s
                 }
             }
         }
-   } 
+    } 
 
-   /*error check*/
-   map<coord, coord>::iterator it;
-   for(it = previous.begin(); it != previous.end(); ++it) {
+    /*error check*/
+    map<coord, coord>::iterator it;
+    for(it = previous.begin(); it != previous.end(); ++it) {
         cout << "first, second" << endl;
-       cout << it->first.x << " " << it->first.y << " " << it->second.x << " " << it->second.y << endl; 
-   } 
+        cout << it->first.x << " " << it->first.y << " " << it->second.x << " " << it->second.y << endl; 
+    } 
 
 }
 
@@ -376,11 +379,11 @@ void algs::dijkstra(map<coord, vector<coord> > &visibility_graph, const coord &s
 //	 path:   Updates path by removing those points which are reached/passed
 void algs::pathPlan(vector<coord> &path, double &angle, double &dist)
 {
-	//Henrique
-	//removes passed coords from path
-	//replaces curr with goal on finish
-	//updates curr_pos assuming succesful step taken
-	//returns next differential command for roomba
-	//code goes here
+    //Henrique
+    //removes passed coords from path
+    //replaces curr with goal on finish
+    //updates curr_pos assuming succesful step taken
+    //returns next differential command for roomba
+    //code goes here
 }
 

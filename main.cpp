@@ -147,10 +147,10 @@ int main (int argc, char * argv[])
    squares.push_back(new Polygon(c3));
    original_obstacles = squares;
 
-    reflected_obstacles = code.growObstacles(original_obstacles);
-    grown_obstacles = code.replaceWithConvexHulls(reflected_obstacles);
+    reflected_obstacles = code.createReflections(original_obstacles);
+    grown_obstacles = code.createConvexHulls(reflected_obstacles);
 
-    visibility_graph = code.constructVisibilityGraph(original_obstacles, start, goal);
+    visibility_graph = code.constructVisibilityGraph(grown_obstacles, start, goal);
     code.dijkstra(visibility_graph, start, goal);
         cout << "done with dijkstra" << endl;
 

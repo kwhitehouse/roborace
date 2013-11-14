@@ -14,9 +14,9 @@ class algs
     public:
         algs(const coord &start, const coord &gol): goal(gol), curr_pos(start), finished(false) {}
 
-        vector<Polygon*> growObstacles(vector<Polygon*> &obstacles);
+        vector<Polygon*> createReflections(vector<Polygon*> &obstacles);
 
-        vector<Polygon*> replaceWithConvexHulls(const vector<Polygon*> &obstacles);
+        vector<Polygon*> createConvexHulls(const vector<Polygon*> &obstacles);
 
         void removeHullsPassed(vector<Polygon*> &obstacles);
 
