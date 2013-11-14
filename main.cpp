@@ -69,7 +69,6 @@ void display()
         glEnd();
     }
 
-/*
     map<coord, vector<coord> >::iterator itv;
     for(itv = visibility_graph.begin(); itv != visibility_graph.end(); ++itv) {
         for(itc = itv->second.begin(); itc != itv->second.end(); ++itc){
@@ -82,7 +81,7 @@ void display()
             glEnd();
         } 
     }
-*/
+
     glFlush();
 }
 
@@ -150,7 +149,7 @@ int main (int argc, char * argv[])
     reflected_obstacles = code.createReflections(original_obstacles);
     grown_obstacles = code.createConvexHulls(reflected_obstacles);
 
-    visibility_graph = code.constructVisibilityGraph(grown_obstacles, start, goal);
+    visibility_graph = code.constructVisibilityGraph(original_obstacles, start, goal);
     code.dijkstra(visibility_graph, start, goal);
         cout << "done with dijkstra" << endl;
 

@@ -57,6 +57,7 @@ vector<Polygon*> algs::createReflections(vector<Polygon*> &obstacles)
             dy = (itc->y <= centroid_y) ? -radius : radius;   
             reflected_coords.push_back(coord(itc->x + dx, itc->y + dy));
         }
+        cout << "reflected coords size: " << reflected_coords.size() << endl;
         reflected_obstacles.push_back(new Polygon(reflected_coords));
     }
     return reflected_obstacles;
@@ -121,7 +122,7 @@ vector<Polygon *> algs::createConvexHulls(const vector<Polygon*> &obstacles)
 
         /*if point is strictly left push onto stack and increment, else pop stack*/ 
         vector<coord>::size_type i = 1;
-        while(i < angles.size()){
+        while(i < angles.size() - 1){
             if(strictlyLeft(angles[i].first, stack.back(), stack[stack.size() - 2])){
                 stack.push_back(angles[i].first);
                 ++i;
@@ -130,6 +131,7 @@ vector<Polygon *> algs::createConvexHulls(const vector<Polygon*> &obstacles)
                 stack.pop_back();
         } 
 
+        cout << "hull size: " << stack.size() << endl;
         hulls.push_back(new Polygon(stack));
     }
     return hulls;
@@ -165,6 +167,10 @@ void algs::removeHullsPassed(vector<Polygon*> &obstacles)
 
 vector<coord> algs::visibleVertices(const vector<pair<coord, coord> > &edges, vector<coord> visible, const coord &vertex)
 {
+
+   cout << "visible vertices size: " << visible.size() << endl;
+   cout << "edges size: " << edges.size() << endl;
+
     for(vector<pair<coord, coord> >::size_type k = 0; k < edges.size(); ++k){ 
         vector<coord>::iterator iter = visible.begin();
         while(iter != visible.end()){
@@ -191,19 +197,26 @@ map<coord, vector<coord> > algs::constructVisibilityGraph(const vector<Polygon *
         }
     }
 
+    cout << edges.size() << endl;
+
+    //create vertices of all objects except for yourself
+    vector<coord> vertices;
+    
     //iterate through obstacles, draw lines to each vertex and check if they intersect obstacle edges
     for(vector<Polygon *>::size_type i = 0; i < obstacles.size(); ++ i) {
 
-        //create vertices of all objects except for yourself
-        vector<coord> vertices;
+        vertices.clear();
         for(vector<Polygon *>::size_type m = 0; m < obstacles.size(); ++m) {
             vector<coord> coords = obstacles[m]->coords_;
+            cout << "coords number: " << coords.size() << endl;
             if(i != m){
                 for(vector<coord>::size_type n = 0; n < coords.size(); ++n) {
                     vertices.push_back(coords[n]);
                 }
             }
         }
+
+        cout << "vertices number: " << vertices.size() << endl;
 
         //loop through vertices of current obstacle
         vector<coord> coords = obstacles[i]->coords_;
@@ -213,7 +226,7 @@ map<coord, vector<coord> > algs::constructVisibilityGraph(const vector<Polygon *
     }
 
     //create vertices of all objects for start and goal
-    vector<coord> vertices;
+    vertices.clear();
     for(vector<Polygon *>::size_type m = 0; m < obstacles.size(); ++m) {
         vector<coord> coords = obstacles[m]->coords_;
         for(vector<coord>::size_type n = 0; n < coords.size(); ++n) {
@@ -229,19 +242,75 @@ map<coord, vector<coord> > algs::constructVisibilityGraph(const vector<Polygon *
 
 bool algs::segmentsIntersect(const coord &c1, const coord &c2, const coord &c3, const coord &c4)
 {
+    coord s, t;
+    s.x = c2.x - c1.x;
+    s.y = c2.y - c1.y;
+    t.x = c4.x - c3.x;
+    t.y = c4.y - c3.y;
+
+    double u, v;
+    u = (-s.y * (c1.x - c3.x) + s.x * (c1.y - c3.y)) / (-t.x * s.y + s.x * t.y);
+    v = ( t.x * (c1.y - c3.y) - t.y * (c1.x - c3.x)) / (-t.x * s.y + s.x * t.y);
+
+    if (u >= 0 && u <= 1 && v >= 0 && v <= 1){
+        coord intersection;
+        intersection.x = c1.x + (v * s.x);
+        intersection.y = c1.y + (v * s.y);
+        return !((intersection == c1 || intersection == c2) && 
+               (intersection == c3 || intersection == c4));
+    }
+    
+    return false;
+
+
+/*
+
+
+
+
+
+        if(c1.x == 1 && c1.y == 1){
+                cout << "c1: " << c1.x << ", " << c1.y << " c2: " << c2.x << " , " << c2.y << endl;
+                cout << "c3: " << c3.x << ", " << c3.y << " c4: " << c4.x << " , " << c4.y << endl;
+        }
+
+
+        double r_cross_s = c1.x*c3.y - c1.y*c3.x;
+        //check if parallel or infinitely intersecting
+        if(r_cross_s == 0.0)
+                return false;
+
+        coord q_minus_p = coord(c4.x - c2.x, c4.y - c2.y);
+        double q_minus_p_cross_s = q_minus_p.x*c3.y - q_minus_p.y*c3.y;
+        double q_minus_p_cross_r = q_minus_p.x*c1.y - q_minus_p.y*c1.y;
+        double t = q_minus_p_cross_s/r_cross_s;
+        double u = q_minus_p_cross_r/r_cross_s;
+        //cout << "t: " << t << " u: " << u << endl;
+        coord intersection = coord(c4.x + u*c3.x, c4.y + u*c3.y);
+        if(c1.x == 1 && c1.y == 1)
+                cout << "intersection: " << intersection.x << ", " << intersection.y << endl;
+        //if((intersection == c1 || intersection == c2) && (intersection == c3 || intersection == c4))
+         //       return false;
+        
+        return (0 <= t && t <= 1 && 0 <= u && u <= 1);
+
+
+
+
     double denominator = (c1.x - c2.x)*(c3.y - c4.y) - (c1.y - c2.y)*(c3.x - c4.x); 
 
     //lines are parallel, if they are the same line they are visible anyway so return false
     if (denominator == 0 )
         return false;
 
-    coord intersection;
+    //coord intersection;
     intersection.x = (c1.x*c2.y - c1.y*c2.x)*(c3.x - c4.x) - (c1.x - c2.x)*(c3.x*c4.y - c3.y*c4.x);
     intersection.x /= denominator;
     intersection.y = (c1.x*c2.y - c1.y*c2.x)*(c3.y - c4.y) - (c1.y - c2.y)*(c3.x*c4.y - c3.y*c4.x);
     intersection.y /= denominator;
-
-
+   
+   if(intersection == c1 || intersection == c2 || intersection == c3 || intersection == c4)
+        return false;
     //if lines intersect at endpoint check if they intersect middle as well
     if (c1 == c3 || c1 == c4 || c2 == c3 || c2 == c4) {
         //check if intersection is within segments (c1 and c2)
@@ -256,7 +325,6 @@ bool algs::segmentsIntersect(const coord &c1, const coord &c2, const coord &c3, 
         //could we just return false here?
 
     }
-
     //check if intersection is within segments (c1 and c2)
     return  intersection.x <= max(c1.x, c2.x) &&
         intersection.x >= min(c1.x, c2.x) && 
@@ -266,7 +334,7 @@ bool algs::segmentsIntersect(const coord &c1, const coord &c2, const coord &c3, 
         intersection.y >= min(c1.y, c2.y) &&
         intersection.y <= max(c3.y, c4.y) && 
         intersection.y >= min(c3.y, c4.y);
-
+*/
 }
 
 bool containsUnvisited(pair<coord, bool> vertex)
