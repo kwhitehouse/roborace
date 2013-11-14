@@ -76,7 +76,7 @@ vector<Polygon*> algs::growObstacles(vector<Polygon*> &obstacles)
 bool sortByAngle(std::pair<coord, pair<float, float> > pair1, std::pair<coord, pair< float, float> > pair2)
 {
         if (pair1.second.first == pair2.second.first)
-                return pair1.second.second < pair2.second.second;
+                return pair1.second.second <= pair2.second.second;
         return pair1.second.first < pair2.second.first;
 }
 
@@ -91,15 +91,16 @@ vector<Polygon *> algs::replaceWithConvexHulls(const vector<Polygon*> &obstacles
     vector<Polygon*> hulls;
     
     /*find rightmost, lowest point*/
-    coord rl = obstacles.front()->coords_.front();
     std::vector<Polygon*>::const_iterator itp;
     for(itp = obstacles.begin(); itp != obstacles.end(); ++itp) {
         vector<coord> coords = (*itp)->coords_;
+        coord rl = coords.front();
         std::vector<coord>::iterator itc;
         for(itc = coords.begin(); itc != coords.end(); ++itc) {
-            if(itc->x > rl.x && itc->y > rl.y)             
+            if(itc->x >= rl.x && itc->y <= rl.y)             
                 rl = *itc;
         }
+
 
         /*sort angles around rightmost lowest point*/
         std::vector<pair<coord, pair<float, float> > > angles;
@@ -114,16 +115,16 @@ vector<Polygon *> algs::replaceWithConvexHulls(const vector<Polygon*> &obstacles
         vector<coord> stack;
         stack.push_back(angles.back().first);
         stack.push_back(angles.front().first);
-        
+
         /*if point is strictly left push onto stack and increment, else pop stack*/ 
         vector<coord>::size_type i = 1;
         while(i < angles.size()){
-               if(strictlyLeft(angles[i].first, stack.back(), stack[stack.size() - 2])){
-                        stack.push_back(angles[i].first);
-                        ++i;
-                }
-                else
-                        stack.pop_back();
+            if(strictlyLeft(angles[i].first, stack.back(), stack[stack.size() - 2])){
+                stack.push_back(angles[i].first);
+                ++i;
+            }
+            else 
+                stack.pop_back();
         } 
 
         hulls.push_back(new Polygon(stack));
