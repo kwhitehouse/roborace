@@ -369,6 +369,66 @@ bool containsUnvisited(pair<coord, bool> vertex)
     return !vertex.second;
 }
 
+
+
+/* Pseudo-Code of Dijkstras
+sortForMinHeap(coord lhs, coord rhs){
+    compare their coord.dist values;
+}
+
+euclid dist(coord a, coord b){
+    return abs(a - b); // if coord.h supports it
+    else just compute L2 distance here
+}
+
+coord{
+    double dist;
+    bool known;
+    coord previous;
+    vector<coord> neighbors;
+}
+
+path = Dijkstras(source, visibility_graph, target){
+
+    for each coord in visibility graph keys
+        coord.dist = infinity;
+        coord.known = false;
+        coord.previous = null;
+        
+    source.dist = 0;
+
+    minHeap forConsideration;
+    forConsideration.add(source)
+
+    while true{
+        vert = minHeap.pop()
+        if(vert == target) break;
+        
+        vert.known = true;
+        
+        for( neighbor :  vert.neighbors){
+            double acummulate = vert.dist + euclid_dist(vert, neighbor);
+            if( accumulate < neighbor.dist && !neighbor.known){
+                neighbor.dist = acummulate;
+                neighbor.previous = vert;
+                forConsideration.add(neighbor);
+            }
+        }
+    }
+
+    vector<coord> path;
+    current = target;
+    while( current.previous != null){
+    path.push_front(current);
+    current = current.previous;
+    }
+
+    return path;
+}
+
+*/
+
+
 // Using the coords present in each Polygon within obstacles, the
 // curr_pos, and the goal, find the best path to the goal.
 // Continuously determine what vertices are reachable from the present position

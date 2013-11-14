@@ -5,12 +5,6 @@
 #include <limits>
 #include "coord.h"
 
-// struct bid_edge //bi-directional edge
-// {
-//     coord _a;
-//     coord _b;
-// };
-
 using namespace std;
 
 //
