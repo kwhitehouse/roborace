@@ -150,8 +150,8 @@ int main (int argc, char * argv[])
  
    squares.push_back(new Polygon(c1));
    squares.push_back(new Polygon(c2));
-//   squares.push_back(new Polygon(c3));
-   //original_obstacles = squares;
+   squares.push_back(new Polygon(c3));
+   original_obstacles = squares;
 
     reflected_obstacles = code.createReflections(original_obstacles);
     grown_obstacles = code.createConvexHulls(reflected_obstacles);

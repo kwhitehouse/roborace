@@ -211,51 +211,71 @@ map<coord, vector<coord> > algs::constructVisibilityGraph(const vector<Polygon *
         }
     }
 
-    cout << "edges number: " << edges.size() << endl;
-
-    //create vertices of all objects except for yourself
-    vector<coord> vertices;
+    //check which points are within other obstacles
+    bool hidden;
+    map<coord, bool> hidden_vertices;
+    for(vector<Polygon *>::size_type i = 0; i < obstacles.size(); ++ i) {
+        vector<coord> coords = obstacles[i]->coords_;
+        for(vector<coord>::size_type k = 0; k < coords.size(); ++k) {
+            hidden = false;
+            for(vector<Polygon *>::size_type j = 0; j < obstacles.size(); ++ j) {
+                if(i != j && pointWithinPolygon(obstacles[j]->coords_, coords[k]))
+                        hidden = true;
+            }
+            hidden_vertices[coords[k]] = hidden;
+        }
+    }
     
+    vector<coord> vertices;
     //iterate through obstacles, draw lines to each vertex and check if they intersect obstacle edges
     for(vector<Polygon *>::size_type i = 0; i < obstacles.size(); ++ i) {
-        vector<coord> coords_i = obstacles[i]->coords_;
-        for(vector<coord>::size_type j = 0; j < coords_i.size(); ++j) {
-            //construct vertices visible from current point (coords_i[j]) -- not including current polygon and test pointWithinPolygon
+        vector<coord> coords = obstacles[i]->coords_;
+        for(vector<coord>::size_type j = 0; j < coords.size(); ++j) {
+            
             vertices.clear();
-            for(vector<Polygon *>::size_type m = 0; m < obstacles.size(); ++m) {
-                vector<coord> coords_m = obstacles[m]->coords_;
-                if(i != m && !pointWithinPolygon(coords_m, coords_i[j])){
-                    for(vector<coord>::size_type n = 0; n < coords_m.size(); ++n) {
-                           if(!pointWithinPolygon(coords_i, coords_m[n]))
-                                vertices.push_back(coords_m[n]);
+            
+            if(!hidden_vertices[coords[j]]){
+                for(vector<Polygon *>::size_type m = 0; m < obstacles.size(); ++m) {
+                    vector<coord> obs_coords = obstacles[m]->coords_;
+                    if(i != m){
+                        for(vector<coord>::size_type n = 0; n < obs_coords.size(); ++n) {
+                                if(!hidden_vertices[obs_coords[n]])
+                                        vertices.push_back(obs_coords[n]);
+                        }
                     }
                 }
+
+                vertices = visibleVertices(edges, vertices, coords[j]);
+                vertices.push_back(coords[(j + 1)%coords.size()]);
+                vertices.push_back(coords[(j - 1 + coords.size())%coords.size()]);
             }
-        cout << "checking vertex: " << coords_i[j].x << " ," << coords_i[j].y << endl;
-        cout << "visible number : " << vertices.size() << endl;
 
-        vector<coord> visible_vertices = visibleVertices(edges, vertices, coords_i[j]);
-        visible_vertices.push_back(coords_i[(j + 1)%coords_i.size()]);
-        visible_vertices.push_back(coords_i[(j - 1 + coords_i.size())%coords_i.size()]);
-        cout << "visible number : " << vertices.size() << endl;
-
-        visibility_graph[coords_i[j]] = visible_vertices;
+            cout << "checking vertex: " << coords[j].x << " ," << coords[j].y << endl;
+            cout << "visible number : " << vertices.size() << endl;
+            visibility_graph[coords[j]] = vertices;
 
         }
     }
 
-    //create vertices of all objects for start and goal
     vertices.clear();
     for(vector<Polygon *>::size_type m = 0; m < obstacles.size(); ++m) {
         vector<coord> coords = obstacles[m]->coords_;
         for(vector<coord>::size_type n = 0; n < coords.size(); ++n) {
-            vertices.push_back(coords[n]);
+                if(!hidden_vertices[coords[n]])
+                        vertices.push_back(coords[n]);
         }
     }
 
-    visibility_graph[start] = visibleVertices(edges, vertices, start);
-    visibility_graph[goal] = visibleVertices(edges, vertices, goal);
+    vector<coord> start_visible = visibleVertices(edges, vertices, start);
+    visibility_graph[start] = start_visible; 
+    for(vector<coord>::size_type a = 0; a < start_visible.size(); ++a)
+        visibility_graph[start_visible[a]].push_back(start);
 
+    vector<coord> end_visible = visibleVertices(edges, vertices, goal);
+    visibility_graph[goal] = end_visible;
+    for(vector<coord>::size_type a = 0; a < end_visible.size(); ++a)
+                visibility_graph[end_visible[a]].push_back(goal);
+    
     return visibility_graph;
 }
 
@@ -275,16 +295,14 @@ bool algs::segmentsIntersect(const coord &c1, const coord &c2, const coord &c3, 
         coord intersection;
         intersection.x = c1.x + (v * s.x);
         intersection.y = c1.y + (v * s.y);
-        
         double d1 = sqrt(pow(intersection.x - c1.x, 2.0) + pow(intersection.y - c1.y, 2.0));
         double d2 = sqrt(pow(intersection.x - c2.x, 2.0) + pow(intersection.y - c2.y, 2.0));
         double d3 = sqrt(pow(intersection.x - c3.x, 2.0) + pow(intersection.y - c3.y, 2.0));
         double d4 = sqrt(pow(intersection.x - c4.x, 2.0) + pow(intersection.y - c4.y, 2.0));
         return !((d1 < 0.01 || d2 < 0.01) && (d3 < 0.01 || d4 < 0.01));
 
-
-        //return !((intersection == c1 || intersection == c2) ||
-          //     (intersection == c3 || intersection == c4));
+        return !((intersection == c1 || intersection == c2) ||
+               (intersection == c3 || intersection == c4));
     }
     
     return false;
