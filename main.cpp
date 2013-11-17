@@ -9,8 +9,8 @@
 #include "algs.h"
 #include "bisc.h"
 
-#define WIDTH   300
-#define HEIGHT  300
+#define WIDTH   600
+#define HEIGHT  600
 
 using namespace std;
 
@@ -20,6 +20,7 @@ coord goal;
 vector<Polygon *> original_obstacles;
 vector<Polygon *> reflected_obstacles;
 vector<Polygon *> grown_obstacles;
+Polygon* boundary;
 map<coord, vector<coord> > visibility_graph;
 
 void display()
@@ -44,7 +45,15 @@ void display()
     vector<coord> cset; 
     vector<Polygon *>::iterator itp;
     vector<coord>::iterator itc;
+    
+    //boundary outline
+    glBegin(GL_LINE_LOOP);
+    glColor3f(0.0f, 0.0f, 1.0f); 
+    cset = (boundary)->coords_;
+    for(itc = cset.begin(); itc != cset.end(); ++itc)
+        glVertex2f((GLfloat) itc->x, (GLfloat) itc->y);
 
+    glEnd();
 
     
    for(itp = grown_obstacles.begin(); itp != grown_obstacles.end(); ++itp){
@@ -119,7 +128,7 @@ int main (int argc, char * argv[])
     }
    
     /*obtain obstacles*/ 
-    Polygon *boundary;
+    //Polygon *boundary;
     Parser parser;
     parser.parseObstacles(argv[1], boundary, original_obstacles);
 
@@ -129,29 +138,29 @@ int main (int argc, char * argv[])
     /*compute: grown obstacles, convex hulls, visibility graph*/
     algs code = algs(start, goal);
 
-   vector<Polygon *> squares; 
-   vector<coord> c1;
-   vector<coord> c2;
-   vector<coord> c3;
-   c1.push_back(coord(0, 0));
-   c1.push_back(coord(1, 0));
-   c1.push_back(coord(1, 2));
-   c1.push_back(coord(0, 2));
+   // vector<Polygon *> squares; 
+   // vector<coord> c1;
+   // vector<coord> c2;
+   // vector<coord> c3;
+   // c1.push_back(coord(0, 0));
+   // c1.push_back(coord(1, 0));
+   // c1.push_back(coord(1, 2));
+   // c1.push_back(coord(0, 2));
 
-   c2.push_back(coord(0, 1.8));
-   c2.push_back(coord(6, 1.8));
-   c2.push_back(coord(6, 4));
-   c2.push_back(coord(0, 4));
+   // c2.push_back(coord(0, 1.8));
+   // c2.push_back(coord(6, 1.8));
+   // c2.push_back(coord(6, 4));
+   // c2.push_back(coord(0, 4));
 
-   c3.push_back(coord(5, -2));
-   c3.push_back(coord(6, -2));
-   c3.push_back(coord(6, -4));
-   c3.push_back(coord(5, -4));
+   // c3.push_back(coord(5, -2));
+   // c3.push_back(coord(6, -2));
+   // c3.push_back(coord(6, -4));
+   // c3.push_back(coord(5, -4));
  
-   squares.push_back(new Polygon(c1));
-   squares.push_back(new Polygon(c2));
-   squares.push_back(new Polygon(c3));
-   original_obstacles = squares;
+   // squares.push_back(new Polygon(c1));
+   // squares.push_back(new Polygon(c2));
+   // squares.push_back(new Polygon(c3));
+   // original_obstacles = squares;
 
     reflected_obstacles = code.createReflections(original_obstacles);
     grown_obstacles = code.createConvexHulls(reflected_obstacles);
