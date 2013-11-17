@@ -11,6 +11,7 @@
 
 #define WIDTH   600
 #define HEIGHT  600
+#define DISP_VG true
 
 using namespace std;
 
@@ -67,12 +68,26 @@ void display()
         glEnd();
     }
 
+    if(DISP_VG == true)
+    {
+        cout << "Visibility Graph" << endl;
+    }
     map<coord, vector<coord> >::iterator itv;
     for(itv = visibility_graph.begin(); itv != visibility_graph.end(); ++itv) {
+        if(DISP_VG == true)
+        {
+        cout << "Vertex: (" << itv->first.x << "," << itv->first.y << "), " << endl;
+        }
         for(itc = itv->second.begin(); itc != itv->second.end(); ++itc){
             glBegin(GL_LINE_LOOP);
             glColor3f(0.0, 1.0, 1.0);
-
+            
+            if(DISP_VG == true)
+            {
+                
+                cout << "\t(" << itc->x << "," << itc->y << ")"<< endl; 
+            }
+            
             glVertex2f((GLfloat) itv->first.x, (GLfloat) itv->first.y);
             glVertex2f((GLfloat) itc->x, (GLfloat) itc->y); 
 

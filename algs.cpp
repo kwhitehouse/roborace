@@ -253,7 +253,6 @@ map<coord, vector<coord> > algs::constructVisibilityGraph(const vector<Polygon *
             cout << "checking vertex: " << coords[j].x << " ," << coords[j].y << endl;
             cout << "visible number : " << vertices.size() << endl;
             visibility_graph[coords[j]] = vertices;
-
         }
     }
 
