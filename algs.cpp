@@ -413,7 +413,7 @@ vector<coord*> algs::dijkstra(coord &source, map<coord, vector<coord> > &visibil
         vert->known = true;
 
         vector<coord> neighbors =  visibility_graph[*vert];
-        for(int i = 0; i < neighbors.size(); ++i){
+        for(int i = 0; i < (int) neighbors.size(); ++i){
 
             coord *neighbor = visibility_reference[ neighbors[i] ];
             double accumulate = vert->dist + euclidDist(*vert, *neighbor);

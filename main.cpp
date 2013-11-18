@@ -111,7 +111,7 @@ void display()
 
     for(vector<coord>::size_type i = 0 ; i < path.size() -1; ++i){
         glBegin(GL_LINE_LOOP);
-        glColor3f(0.0f, 1.0f, 0.0f);
+        glColor3f(0.0f, 0.0f, 0.0f);
 
         glVertex2f((GLfloat) path[i]->x, (GLfloat) path[i]->y); 
         glVertex2f((GLfloat) path[i+1]->x, (GLfloat) path[i+1]->y); 
