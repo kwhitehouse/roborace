@@ -2,13 +2,6 @@
 #include <math.h>
 #include <GLUT/glut.h>
 
-//All functions have have access to:
-//--// coord goal;
-//--// coord curr_pos;
-//--// bool finished;
-//--// vector<bid_edge> potential_paths;
-
-
 // Given the initial vector of polygons (obstacles), grow each one
 // individually (all the way around) by some pretermined region
 // in order to determine the workspace of the robot without collisions
@@ -387,156 +380,63 @@ bool containsUnvisited(pair<coord, bool> vertex)
 }
 
 
-
-/* Pseudo-Code of Dijkstras
-sortForMinHeap(coord lhs, coord rhs){
-    compare their coord.dist values;
+bool coordDistComp(const coord *lhs, const coord *rhs){
+    return  lhs->dist > rhs->dist;
 }
 
-euclid dist(coord a, coord b){
-    return abs(a - b); // if coord.h supports it
-    else just compute L2 distance here
+double euclidDist(const coord a, const coord b){
+    return sqrt((a.x - b.x)*(a.x - b.x) + (a.y - b.y)*(a.y - b.y)); // L2 norm
 }
 
-coord{
-    double dist;
-    bool known;
-    coord previous;
-    vector<coord> neighbors;
-}
+vector<coord*> algs::dijkstra(coord &source, map<coord, vector<coord> > &visibility_graph, coord &target){
 
-path = Dijkstras(source, visibility_graph, target){
+    map<coord, coord*> visibility_reference;
+    map<coord, vector<coord> >::iterator iter_g;
+    for(iter_g = visibility_graph.begin(); iter_g != visibility_graph.end(); ++iter_g){
+        visibility_reference[iter_g->first] = new coord(iter_g->first.x, iter_g->first.y);
+    }
+    visibility_reference[source] = &source;
+    visibility_reference[target] = &target;
 
-    for each coord in visibility graph keys
-        coord.dist = infinity;
-        coord.known = false;
-        coord.previous = null;
-        
     source.dist = 0;
+    vector<coord*> minHeap;
+    minHeap.push_back(visibility_reference[source]);
 
-    minHeap forConsideration;
-    forConsideration.add(source)
+    coord* vert;
+    while (minHeap.size() > 0) {
+        vert = minHeap.back();
 
-    while true{
-        vert = minHeap.pop()
-        if(vert == target) break;
-        
-        vert.known = true;
-        
-        for( neighbor :  vert.neighbors){
-            double acummulate = vert.dist + euclid_dist(vert, neighbor);
-            if( accumulate < neighbor.dist && !neighbor.known){
-                neighbor.dist = acummulate;
-                neighbor.previous = vert;
-                forConsideration.add(neighbor);
+        minHeap.pop_back();
+        if(*vert == target){
+            break;
+        }
+        vert->known = true;
+
+        vector<coord> neighbors =  visibility_graph[*vert];
+        for(int i = 0; i < neighbors.size(); ++i){
+
+            coord *neighbor = visibility_reference[ neighbors[i] ];
+            double accumulate = vert->dist + euclidDist(*vert, *neighbor);
+
+            if( !neighbor->known && accumulate < neighbor->dist ){
+                neighbor->dist = accumulate;          
+                neighbor->previous = vert;
+                minHeap.push_back(neighbor);
+                std::sort (minHeap.begin(), minHeap.end(), coordDistComp);
             }
         }
     }
+    vector<coord*> path;
 
-    vector<coord> path;
-    current = target;
-    while( current.previous != null){
-    path.push_front(current);
-    current = current.previous;
+    while( vert != NULL){
+        cout << " -curr- " << *vert << endl;
+
+        path.push_back(vert);
+        vert = vert->previous;
     }
+    std::reverse(path.begin(), path.end());
 
     return path;
-}
-
-*/
-
-
-// Using the coords present in each Polygon within obstacles, the
-// curr_pos, and the goal, find the best path to the goal.
-// Continuously determine what vertices are reachable from the present position
-// and then perform dijkstras algorithm in order to discover the shortest path
-// to the goal
-// Also updates member potential_paths will all the potential paths to be shown in
-// the gui representation of the visibility graph
-// Inputs:
-//   obstacles:  The convex hulls of all the obstacles in the course. Whose vertices
-//				 are to be used as nodes, along with curr_pos and goal, in the graph
-//				 composing dijkstras algorithm
-// Outputs:
-//   path:    	 The coordinates, in order, to be visited by the roomba in order
-//				 to perform optimally during RoboRace2013
-void algs::dijkstra(map<coord, vector<coord> > &visibility_graph, const coord &source, const coord &goal)
-{
-    map<coord, double> distances;
-    map<coord, bool> visited;
-    map<coord, coord> previous;
-
-
-    /*initialize all vertices as unvisited*/
-    map<coord, vector<coord> >::iterator iter_g;
-    for(iter_g = visibility_graph.begin(); iter_g != visibility_graph.end(); ++iter_g)
-        visited[iter_g->first] = false;
-
-    /*initialize all distances from source to each visible vertex*/
-    vector<coord>::iterator iter_v;
-    for(iter_v = visibility_graph[source].begin(); iter_v != visibility_graph[source].end(); ++iter_v){
-        double d = sqrt(pow(iter_v->x - source.x, 2.0) + pow(iter_v->y - source.y, 2.0));
-        distances[*iter_v] = d;
-    }
-
-    /*mark source as visited*/
-    distances[source] = 0.0;
-    vector<coord> queue;
-    queue.push_back(source);
-
-    /*while queue is not empty*/
-    while(!queue.empty()){
-        cout << "queue: " << queue.size() << endl;
-
-        /*find closest vertex to current point that has not yet been visited*/
-        double closest_distance = INFINITY;
-        vector<coord>::iterator closest_vertex;
-        for(iter_v = queue.begin(); iter_v != queue.end(); ++iter_v) {
-            if(!visited[*iter_v] && distances[*iter_v] < closest_distance) {
-                closest_distance = distances[*iter_v];
-                closest_vertex = iter_v;
-            }
-        }
-        coord u = *closest_vertex;
-        /*remove closest, unvisited vertex from queue*/
-        queue.erase(closest_vertex);
-        /*mark closest, unvisited vertex as visited*/
-        visited[u] = true;
-
-        cout << "u: " << u.x << " " << u.y << endl;
-        if(u == goal)
-            return;
-
-        /*look through unvisited neighbors of closest point*/
-        vector<coord> neighbors = visibility_graph[u];
-        cout << "size " << neighbors.size() << endl;
-        for(iter_v = neighbors.begin(); iter_v != neighbors.end(); ++iter_v) {
-            coord v = *iter_v;
-            cout << "v: " << v.x << " " << v.y << endl;
-
-            /*if not visited*/
-            if(!visited[v]) {
-                double dist = distances[u];
-                dist += sqrt(pow(u.x - v.x, 2.0) + pow(u.y - v.y, 2.0));
-                cout << "dist " << dist << endl;
-                cout << distances[v] << endl;
-                if(dist < distances[v]) {
-                    cout << "pushed back" << endl;
-                    distances[v] = dist;
-                    previous[v] = u;
-                    queue.push_back(v);
-                }
-            }
-        }
-    } 
-
-    /*error check*/
-    map<coord, coord>::iterator it;
-    for(it = previous.begin(); it != previous.end(); ++it) {
-        cout << "first, second" << endl;
-        cout << it->first.x << " " << it->first.y << " " << it->second.x << " " << it->second.y << endl; 
-    } 
-
 }
 
 // Given the curr_pos of the roomba and the path by which to follow

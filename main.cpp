@@ -23,6 +23,7 @@ vector<Polygon *> reflected_obstacles;
 vector<Polygon *> grown_obstacles;
 Polygon* boundary;
 map<coord, vector<coord> > visibility_graph;
+vector<coord*> path;
 
 void display()
 {
@@ -56,17 +57,6 @@ void display()
 
     glEnd();
 
-    
-   for(itp = grown_obstacles.begin(); itp != grown_obstacles.end(); ++itp){
-        glBegin(GL_LINE_LOOP);
-        glColor3f(0.0f, 0.0f, 1.0f); 
-
-        cset = (*itp)->coords_;
-        for(itc = cset.begin(); itc != cset.end(); ++itc)
-            glVertex2f((GLfloat) itc->x, (GLfloat) itc->y);
-
-        glEnd();
-    }
 
     if(DISP_VG == true)
     {
@@ -95,6 +85,19 @@ void display()
         } 
     }
 
+    
+   for(itp = grown_obstacles.begin(); itp != grown_obstacles.end(); ++itp){
+        glBegin(GL_LINE_LOOP);
+        glColor3f(0.0f, 0.0f, 1.0f); 
+
+        cset = (*itp)->coords_;
+        for(itc = cset.begin(); itc != cset.end(); ++itc)
+            glVertex2f((GLfloat) itc->x, (GLfloat) itc->y);
+
+        glEnd();
+    }
+
+
     for(itp = original_obstacles.begin(); itp != original_obstacles.end(); ++itp){
         glBegin(GL_LINE_LOOP);
         glColor3f(1.0f, 0.0f, 0.0f);
@@ -106,6 +109,15 @@ void display()
         glEnd();
     }
 
+    for(vector<coord>::size_type i = 0 ; i < path.size() -1; ++i){
+        glBegin(GL_LINE_LOOP);
+        glColor3f(0.0f, 1.0f, 0.0f);
+
+        glVertex2f((GLfloat) path[i]->x, (GLfloat) path[i]->y); 
+        glVertex2f((GLfloat) path[i+1]->x, (GLfloat) path[i+1]->y); 
+
+        glEnd();
+    } 
 /*
     glBegin(GL_POINTS);
     glColor3f(1.0f, 0.0f, 1.0f);
@@ -181,7 +193,7 @@ int main (int argc, char * argv[])
     grown_obstacles = code.createConvexHulls(reflected_obstacles);
 
     visibility_graph = code.constructVisibilityGraph(grown_obstacles, start, goal);
-    code.dijkstra(visibility_graph, start, goal);
+    path = code.dijkstra(start, visibility_graph, goal);
         cout << "done with dijkstra" << endl;
 
     /*render in gui*/

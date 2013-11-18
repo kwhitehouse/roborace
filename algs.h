@@ -28,7 +28,7 @@ class algs
 
         std::map<coord, vector<coord> > constructVisibilityGraph(const std::vector<Polygon *> &obstacles, const coord &start, const coord &goal);
 
-        void dijkstra(map<coord, vector<coord> > &visibility_graph, const coord &source, const coord &goal);
+        vector<coord*> dijkstra(coord &source, map<coord, vector<coord> > &visibility_graph, coord &goal);
 
         void pathPlan(vector<coord> &path, double &angle, double &dist);
 
