@@ -26,7 +26,7 @@ class algs
 
         vector<coord> visibleVertices(const vector <pair<coord, coord> > &, vector<coord>, const coord &);
 
-        std::map<coord, vector<coord> > constructVisibilityGraph(const std::vector<Polygon *> &obstacles, const coord &start, const coord &goal);
+        std::map<coord, vector<coord> > constructVisibilityGraph(const std::vector<Polygon *> &obstacles,const Polygon* &boundary, const coord &start, const coord &goal);
 
         vector<coord*> dijkstra(coord &source, map<coord, vector<coord> > &visibility_graph, coord &goal);
 

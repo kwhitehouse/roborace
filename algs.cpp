@@ -191,7 +191,7 @@ bool pointWithinPolygon(vector<coord> polygon, const coord &point)
 }
 
 
-map<coord, vector<coord> > algs::constructVisibilityGraph(const vector<Polygon *> &obstacles, const coord &start, const coord &goal)
+map<coord, vector<coord> > algs::constructVisibilityGraph(const vector<Polygon *> &obstacles, const Polygon boundary, const coord &start, const coord &goal)
 {
     map<coord, vector<coord> > visibility_graph;
 
