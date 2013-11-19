@@ -25,32 +25,48 @@ vector<Polygon*> algs::createReflections(vector<Polygon*> &obstacles)
     vector< Polygon* > reflected_obstacles;
     vector< coord > reflected_coords;
 
-    double area, centroid_x, centroid_y; 
+    //double area, centroid_x, centroid_y; 
     //iterate through all polygons and compute centroid
     for(itp = obstacles.begin(); itp != obstacles.end(); ++itp) {
-        area = centroid_x = centroid_y = 0;
+        //area = centroid_x = centroid_y = 0;
         vector<coord> coords = (*itp)->coords_;
-        reflected_coords.clear();
-        for(vector<coord>::size_type i = 0; i < coords.size(); ++i) {
-            coord c1 =  coords[i];
-            coord c2 = coords[(i + 1)%coords.size()];
-            double a = c1.x*c2.y - c2.x*c1.y;
-            area += a;
-            centroid_x += (c1.x + c2.x)*a;
-            centroid_y += (c1.y + c2.y)*a;
-        }
-        area *= 0.5;
-        centroid_x /= (6 * area);
-        centroid_y /= (6 * area);
+        //reflected_coords.clear();
+        vector< coord > reflected_coords;
 
-        double dx, dy; 
-        //iterate through all polygons and extend vertices outwards by dx, dy
-        for(itc = coords.begin(); itc != coords.end(); ++itc) {
-            dx = (itc->x <= centroid_x) ? -radius : radius;   
-            dy = (itc->y <= centroid_y) ? -radius : radius;   
-            reflected_coords.push_back(coord(itc->x + dx, itc->y + dy));
+        for(vector<coord>::size_type i = 0; i < coords.size(); ++i) {
+            int one = i-1;
+            
+            if( one < 0 ){
+                one = (int) coords.size() - 1;
+            }
+
+            int two = i;
+            int three = (i + 1)%coords.size();
+            coord c1 = coords[one];
+            coord c2 = coords[two];
+            coord c3 = coords[three];
+
+            double x1 = (c1.x - c2.x);
+            double y1 = (c1.y - c2.y);
+
+            double total = sqrt(pow(x1, 2.0) + pow(y1, 2.0));
+            x1 = x1/total;
+            y1 = y1/total;
+
+            double x2 =  (c2.x - c3.x);
+            double y2 = (c2.y - c3.y);
+            total = sqrt(pow(x2, 2.0) + pow(y2, 2.0));
+            x2 = x2/total;
+            y2 = y2/total;
+
+            double x3 =  (x2 - x1);
+            double y3 = (y2 - y1);
+            total = sqrt(pow(x3, 2.0) + pow(y3, 2.0));
+            x3 = x3/total;
+            y3 = y3/total;
+
+            reflected_coords.push_back(coord(c2.x + radius*x3, c2.y + radius*y3));
         }
-        cout << "reflected coords size: " << reflected_coords.size() << endl;
         reflected_obstacles.push_back(new Polygon(reflected_coords));
     }
     return reflected_obstacles;

@@ -189,7 +189,9 @@ int main (int argc, char * argv[])
    // squares.push_back(new Polygon(c3));
    // original_obstacles = squares;
 
+    cout << "MAKING REFLECTIONS" << endl;
     reflected_obstacles = code.createReflections(original_obstacles);
+    cout << "FUCK THIS SHIT" << endl;
     grown_obstacles = code.createConvexHulls(reflected_obstacles);
 
     const Polygon * c_bound = boundary;
