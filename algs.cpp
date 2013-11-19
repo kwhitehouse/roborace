@@ -65,6 +65,28 @@ vector<Polygon*> algs::createReflections(vector<Polygon*> &obstacles)
             x3 = x3/total;
             y3 = y3/total;
 
+            double diff = abs(x3) - abs(y3);
+            if (abs(diff) < 0.1) {
+                if (x3 < 0) x3 = -1;
+                else if(x3 > 0) x3 = 1;
+                if(y3 < 0) y3 = -1;
+                else if (y3 > 0) y3 = 1;
+            }
+            else if(diff > 0) {
+                if (x3 < 0) x3 = -2;
+                else if(x3 > 0) x3 = 2;
+                if(y3 < 0) y3 = -1;
+                else if (y3 > 0) y3 = 1;
+            }
+            else {
+                if (x3 < 0) x3 = -1;
+                else if(x3 > 0) x3 = 1;
+                if(y3 < 0) y3 = -2;
+                else if (y3 > 0) y3 = 2;
+
+            } 
+        
+
             reflected_coords.push_back(coord(c2.x + radius*x3, c2.y + radius*y3));
         }
         reflected_obstacles.push_back(new Polygon(reflected_coords));
