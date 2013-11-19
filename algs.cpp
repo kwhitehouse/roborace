@@ -203,6 +203,11 @@ map<coord, vector<coord> > algs::constructVisibilityGraph(const vector<Polygon *
             edges.push_back(make_pair(coords[j], coords[(j + 1)%coords.size()]));    
         }
     }
+        vector<coord> coords_b = boundary->coords_;
+        for(vector<coord>::size_type j = 0; j < coords_b.size(); ++j) {
+            edges.push_back(make_pair(coords_b[j], coords_b[(j + 1)%coords_b.size()]));    
+        }
+
 
     //check which points are within other obstacles
     bool hidden;
@@ -239,6 +244,7 @@ map<coord, vector<coord> > algs::constructVisibilityGraph(const vector<Polygon *
                 }
 
                 vertices = visibleVertices(edges, vertices, coords[j]);
+
                 vertices.push_back(coords[(j + 1)%coords.size()]);
                 vertices.push_back(coords[(j - 1 + coords.size())%coords.size()]);
             }

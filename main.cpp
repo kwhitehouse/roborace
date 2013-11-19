@@ -192,7 +192,9 @@ int main (int argc, char * argv[])
     reflected_obstacles = code.createReflections(original_obstacles);
     grown_obstacles = code.createConvexHulls(reflected_obstacles);
 
-    visibility_graph = code.constructVisibilityGraph(grown_obstacles, boundary, start, goal);
+    const Polygon * c_bound = boundary;
+
+    visibility_graph = code.constructVisibilityGraph(grown_obstacles, c_bound, start, goal);
     path = code.dijkstra(start, visibility_graph, goal);
         cout << "done with dijkstra" << endl;
 
