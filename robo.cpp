@@ -35,8 +35,9 @@ int robo::init(char *device)
 void robo::moveNextCoord(vector<float> dest) {
 	//turn
 	biscWaitAngle( (int) dest[1]);
-	//move
-	biscDriveDistanceStraight(0.1, dest[0] * 1000);
+	//move; way to improve: see how long it takes for the robot to stop (distance-wise) during calibration
+	//decrease the dest[0] by that much; same with angle
+	biscDriveDistanceStraight(0.1, (int) dest[0] * 1000);
 	//turn back
 	biscWaitAngle( -(int) dest[1]);
 
