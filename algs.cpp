@@ -2,6 +2,8 @@
 #include <math.h>
 #include <GLUT/glut.h>
 
+#define PI 3.14159265
+
 // Given the initial vector of polygons (obstacles), grow each one
 // individually (all the way around) by some pretermined region
 // in order to determine the workspace of the robot without collisions
@@ -557,5 +559,18 @@ void algs::pathPlan(vector<coord> &path, double &angle, double &dist)
     //updates curr_pos assuming succesful step taken
     //returns next differential command for roomba
     //code goes here
+}
+
+//Calculates distance + angle from current location to next location
+vector<float> algs::getPathInfo(coord &c1, coord &c2){
+    vector<float> path;
+
+    float dist = sqrt(pow(c2.x - c1.x, 2.0) + pow(c2.y - c1.y, 2.0));
+    float angle = atan2(c2.y - c1.y, c2.x - c1.x) * 180/ PI;
+    path.push_back(dist);
+    path.push_back(angle);
+
+    return path;
+
 }
 

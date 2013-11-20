@@ -1,4 +1,4 @@
-OBJS = Parser.o algs.o main.o
+OBJS = Parser.o algs.o roboMain.o
 CXX = g++
 DEBUG = -g
 CXXFLAGS = -Wall $(DEBUG) $(INCLUDES) 

@@ -32,6 +32,8 @@ class algs
 
         void pathPlan(vector<coord> &path, double &angle, double &dist);
 
+        vector<float> getPathInfo(coord &c1, coord &c2);
+
         coord goal;
         coord curr_pos;
         bool finished;
