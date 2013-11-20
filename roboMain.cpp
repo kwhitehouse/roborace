@@ -146,6 +146,8 @@ void rend(int argc, char **argv)
 */
 int main (int argc, char * argv[])
 {
+    time_t timer;
+    time(&timer); 
 
     printf("%s\n", biscGetVersion());
    
@@ -200,53 +202,17 @@ int main (int argc, char * argv[])
     robo robot = robo(start, goal);
     int success = robot.init("/dev/tty.ElementSerial-ElementSe");
 
+    for(std::vector<float>::size_type i = 0; i < moves.size(); ++i){
+        robot.moveNextCoord(moves[i]);
+    }
     
     /* CODE RENDER CHECK */
-    /*rend(argc, argv);*/
+    rend(argc, argv);
         // code.
 
-
-/*
-     vector<coord> path;
-     coord curr_pos = start;
-     int map_num = -1;
-     bool bump_hit = false;
-     bool visual_hit = false;
-     double angle = 0;
-     double dist = 0;
-    get current time
-    time_t timer;
-    time(&timer);  
-
-
- */
-
-     //change if to while
-     //while(curr_pos != goal){ //assumes goal is reachable
-
-         //determine path
-         //code.removeHullsPassed(obstacles);
-
-    //     code.dijkstra(obstacles, path);
-    //     code.renderVisibilityGraph(++map_num, path, boundary, orig_obs, obstacles);
-
-    //     while(curr_pos != goal){
-    //         //determine step distance or angle turn
-    //         code.pathPlan(path, angle, dist); //removes passed coords // replaces curr with goal on finish
-    //         //send command to roomba
-    //         ????????send
-    //         //wait and listen for roomba reply when finished
-    //         ???????receive
-    //         //////interpret reply for camera image and bump sensors
-    //         ??????interpret
-    //         if(bump_hit || visual_hit){
-    //             break;
-    //         }
-    //     }
-    //}
-
-    //double seconds = difftime(time(NULL),timer);
-    //cout << "Goal achieved at time: " << seconds << endl;
+    robot.disconnect();
+    double seconds = difftime(time(NULL),timer);
+    cout << "Goal achieved at time: " << seconds << endl;
     return 0;
 }
 

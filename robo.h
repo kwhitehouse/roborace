@@ -19,23 +19,7 @@ class robo
 
         void moveNextCoord(vector<float> dest);
 
-        // vector<Polygon*> createConvexHulls(const vector<Polygon*> &obstacles);
-
-        // void removeHullsPassed(vector<Polygon*> &obstacles);
-
-        // double cross(coord &p, coord &q, coord &r);
-
-        // bool segmentsIntersect(const coord &, const coord &, const coord &, const coord &);
-
-        // vector<coord> visibleVertices(const vector <pair<coord, coord> > &, vector<coord>, const coord &);
-
-        // std::map<coord, vector<coord> > constructVisibilityGraph(const std::vector<Polygon *> &obstacles,const Polygon* &boundary, const coord &start, const coord &goal);
-
-        // vector<coord*> dijkstra(coord &source, map<coord, vector<coord> > &visibility_graph, coord &goal);
-
-        // void pathPlan(vector<coord> &path, double &angle, double &dist);
-
-        // vector<float> getPathInfo(coord &c1, coord &c2);
+        int disconnect();
 
         coord goal;
         coord curr_pos;

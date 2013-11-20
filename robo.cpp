@@ -3,16 +3,6 @@
 
 #define PI 3.14159265
 
-// Given the initial vector of polygons (obstacles), grow each one
-// individually (all the way around) by some pretermined region
-// in order to determine the workspace of the robot without collisions
-// Inputs:
-//   obstacles:  Original polygons consisting of the coordinates
-//                               which make up their vertices
-// Outputs:
-//   obstacles:  The same polygons with coordinates added to each.
-//                       polygon accounting for their growth regions
-
 int robo::init(char *device)
 {
 
@@ -27,7 +17,6 @@ int robo::init(char *device)
 	//drive forward 1 meter
 	//biscDriveDistance(BISC_DRIVE_FORWARD_HALF_SPEED, 300, 1.0 * 1000);
 
-	//biscDisconnect();
 
 	return 0;
 }
@@ -39,8 +28,13 @@ void robo::moveNextCoord(vector<float> dest) {
 	//decrease the dest[0] by that much; same with angle
 	biscDriveDistanceStraight(0.1, (int) dest[0] * 1000);
 	//turn back
-	biscWaitAngle( -(int) dest[1]);
+	biscWaitAngle( -(int) dest[1]); // do we want to turn back?
 
 }
 
+int robo::disconnect(){
 
+	biscDisconnect();
+
+	return 0;
+}

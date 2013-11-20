@@ -1,5 +1,5 @@
-#ifndef __ROBO_H__
-#define __ROBO_H__
+#ifndef __ALGS_H__
+#define __ALGS_H__
 
 #include <map>
 #include <vector>
