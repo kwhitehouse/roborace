@@ -15,7 +15,7 @@ vector<Polygon*> algs::createReflections(vector<Polygon*> &obstacles)
 {
 
     //Growing dimensions
-    double radius = 0.34306/2;
+    double radius = sqrt(pow(0.34306,2.0)/2);
 
     //iterators
     vector<Polygon*>::iterator itp;
@@ -33,6 +33,9 @@ vector<Polygon*> algs::createReflections(vector<Polygon*> &obstacles)
         //reflected_coords.clear();
         vector< coord > reflected_coords;
 
+        if (coords.size() != 4){
+            radius = radius*2;
+        }
         for(vector<coord>::size_type i = 0; i < coords.size(); ++i) {
             int one = i-1;
             
@@ -65,30 +68,83 @@ vector<Polygon*> algs::createReflections(vector<Polygon*> &obstacles)
             x3 = x3/total;
             y3 = y3/total;
 
-            double diff = abs(x3) - abs(y3);
-            if (abs(diff) < 0.1) {
-                if (x3 < 0) x3 = -1;
-                else if(x3 > 0) x3 = 1;
-                if(y3 < 0) y3 = -1;
-                else if (y3 > 0) y3 = 1;
-            }
-            else if(diff > 0) {
-                if (x3 < 0) x3 = -2;
-                else if(x3 > 0) x3 = 2;
-                if(y3 < 0) y3 = -1;
-                else if (y3 > 0) y3 = 1;
-            }
-            else {
-                if (x3 < 0) x3 = -1;
-                else if(x3 > 0) x3 = 1;
-                if(y3 < 0) y3 = -2;
-                else if (y3 > 0) y3 = 2;
+            cout << "Current Coord: "<< "("<< c2.x << ","<<c2.y<<")"<<endl;
+            cout << "("<<x3 << ","<<y3<<")"<<endl;
 
-            } 
+            // double diff = abs(x3) - abs(y3);
+            // if (abs(diff) < 0.1) {
+            //     if (x3 < 0) x3 = -1;
+            //     else if(x3 > 0) x3 = 1;
+            //     if(y3 < 0) y3 = -1;
+            //     else if (y3 > 0) y3 = 1;
+            // }
+            // else if(diff > 0) {
+            //     if (x3 < 0) x3 = -2;
+            //     else if(x3 > 0) x3 = 2;
+            //     if(y3 < 0) y3 = -1;
+            //     else if (y3 > 0) y3 = 1;
+            // }
+            // else {
+            //     if (x3 < 0) x3 = -1;
+            //     else if(x3 > 0) x3 = 1;
+            //     if(y3 < 0) y3 = -2;
+            //     else if (y3 > 0) y3 = 2;
+
+            // } 
         
 
             reflected_coords.push_back(coord(c2.x + radius*x3, c2.y + radius*y3));
         }
+
+        for(vector<coord>::size_type i = 0; i < reflected_coords.size(); ++i) {
+            // int one = i-1;
+            
+            // if( one < 0 ){
+            //     one = (int) coords.size() - 1;
+            // }
+
+            int one = i;
+            int two = (i + 1)%coords.size();
+            int three = (i + 1 + coords.size())%coords.size();
+            coord c1 = coords[one];
+            coord c2 = coords[two];
+            coord c3 = coords[three];
+            coord &r1 = reflected_coords[one];
+            coord &r2 = reflected_coords[two];
+            //coord &r3
+
+            if(c1.x == c2.x){
+                cout << "EQUAL X" << endl;
+
+                if( abs(r1.x) <  abs(r2.x) ){
+                    //r1.x = 1.3*r1.x;
+                    r2.x = r1.x;
+                }
+                else{
+                    //r2.x =1.3*r2.x;
+                    r1.x = r2.x;
+                }
+
+            }
+
+             if(c1.y == c2.y){
+                cout << "EQL Y" << endl;
+                if( abs(r1.y) <  abs(r2.y) ){
+                    //r1.y = 1.3*r1.y;
+                    r2.y = r1.y;
+                }
+                else{
+                    //r2.y = r2.y*1.3;
+                    r1.y = r2.y; 
+                }
+
+            }
+
+        }
+        //max of reflected points...
+        ///okay.
+
+
         reflected_obstacles.push_back(new Polygon(reflected_coords));
     }
     return reflected_obstacles;
