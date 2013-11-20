@@ -8,6 +8,7 @@
 #include "Polygon.h"
 #include "algs.h"
 #include "bisc.h"
+#include "robo.h"
 
 #define WIDTH   600
 #define HEIGHT  600
@@ -165,30 +166,6 @@ int main (int argc, char * argv[])
     /*compute: grown obstacles, convex hulls, visibility graph*/
     algs code = algs(start, goal);
 
-   // vector<Polygon *> squares; 
-   // vector<coord> c1;
-   // vector<coord> c2;
-   // vector<coord> c3;
-   // c1.push_back(coord(0, 0));
-   // c1.push_back(coord(1, 0));
-   // c1.push_back(coord(1, 2));
-   // c1.push_back(coord(0, 2));
-
-   // c2.push_back(coord(0, 1.8));
-   // c2.push_back(coord(6, 1.8));
-   // c2.push_back(coord(6, 4));
-   // c2.push_back(coord(0, 4));
-
-   // c3.push_back(coord(5, -2));
-   // c3.push_back(coord(6, -2));
-   // c3.push_back(coord(6, -4));
-   // c3.push_back(coord(5, -4));
- 
-   // squares.push_back(new Polygon(c1));
-   // squares.push_back(new Polygon(c2));
-   // squares.push_back(new Polygon(c3));
-   // original_obstacles = squares;
-
     reflected_obstacles = code.createReflections(original_obstacles);
     grown_obstacles = code.createConvexHulls(reflected_obstacles);
 
@@ -201,7 +178,9 @@ int main (int argc, char * argv[])
     /*render in gui*/
     /*rend(argc, argv);*/
 
-    //ROBOT MOVEMENT
+    /* ----------- ROBOT --------------- */
+
+    //calculate angle + distance between coordinates
     cout << "\nDistance, Angle Pairs for Path" << endl;
     coord curr_pos = start;
     while(curr_pos != goal){ 
@@ -214,6 +193,11 @@ int main (int argc, char * argv[])
             curr_pos = next_pos;
         }
     }
+
+    /*compute: grown obstacles, convex hulls, visibility graph*/
+    robo robot = robo(start, goal);
+    int success = robot.init("/dev/tty.ElementSerial-ElementSe");
+
     
     /* CODE RENDER CHECK */
     /*rend(argc, argv);*/

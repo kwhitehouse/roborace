@@ -1,5 +1,5 @@
-#ifndef __ALGS_H__
-#define __ALGS_H__
+#ifndef __ROBO_H__
+#define __ROBO_H__
 
 #include <map>
 #include <vector>
@@ -7,6 +7,7 @@
 #include "Parser.h"
 #include "Polygon.h"
 #include "algs.h"
+#include "robo.h"
 
 
 class algs
