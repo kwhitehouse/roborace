@@ -183,12 +183,14 @@ int main (int argc, char * argv[])
     //calculate angle + distance between coordinates
     cout << "\nDistance, Angle Pairs for Path" << endl;
     coord curr_pos = start;
+    vector< vector<float> > moves;
     while(curr_pos != goal){ 
         //starts at 1 to skip initial position
         for (int i = 1; i <(int)  path.size(); ++i){
             coord next_pos = *path[i];
             //Gets a vector of <distance, angle (in degrees) >
             vector<float> next_move = code.getPathInfo(curr_pos, next_pos);
+            moves.push_back(next_move);
             cout << "dist: " << next_move[0] << ", angle: " << next_move[1] << endl;
             curr_pos = next_pos;
         }
