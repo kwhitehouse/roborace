@@ -15,7 +15,7 @@ int robo::init(char *device)
 	//full mode
 	biscChangeMode(BISC_MODE_FULL);
 	//drive forward 1 meter
-	//biscDriveDistance(BISC_DRIVE_FORWARD_HALF_SPEED, 300, 1.0 * 1000);
+	biscDriveDistance(BISC_DRIVE_FORWARD_HALF_SPEED, 300, 1.0 * 1000);
 
 
 	return 0;

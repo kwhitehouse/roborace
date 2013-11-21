@@ -2,6 +2,9 @@
 #include <time.h>
 #include <vector>
 #include <GLUT/glut.h>
+#include <string> 
+#include <fstream>
+#include <iostream>
 
 #include "coord.h"
 #include "Parser.h"
@@ -9,6 +12,7 @@
 #include "algs.h"
 #include "bisc.h"
 #include "robo.h"
+
 
 #define WIDTH   600
 #define HEIGHT  600
@@ -25,6 +29,8 @@ vector<Polygon *> grown_obstacles;
 Polygon* boundary;
 map<coord, vector<coord> > visibility_graph;
 vector<coord*> path;
+
+
 
 void display()
 {
@@ -146,6 +152,21 @@ void rend(int argc, char **argv)
 */
 int main (int argc, char * argv[])
 {
+
+
+    // if( biscInit(device) != BISC_SUCCESS ){
+    //     fprintf(stderr, "could not connect to the create. \n");
+    //     return 1;
+    // }
+
+    // //full mode
+    // biscChangeMode(BISC_MODE_FULL);
+    // //drive forward 1 meter
+    // biscDriveDistance(BISC_DRIVE_FORWARD_HALF_SPEED, 300, 1.0 * 1000);
+
+
+    //return 0;
+
     time_t timer;
     time(&timer); 
 
@@ -181,6 +202,7 @@ int main (int argc, char * argv[])
     /*rend(argc, argv);*/
 
     /* ----------- ROBOT --------------- */
+    std::ofstream outputFile("out.txt", std::ofstream::out);
 
     //calculate angle + distance between coordinates
     cout << "\nDistance, Angle Pairs for Path" << endl;
@@ -195,8 +217,11 @@ int main (int argc, char * argv[])
             moves.push_back(next_move);
             cout << "dist: " << next_move[0] << ", angle: " << next_move[1] << endl;
             curr_pos = next_pos;
+        outputFile << next_move[0] << " " << next_move[1] << "\n";
         }
     }
+
+    outputFile.close();
 
     /*compute: grown obstacles, convex hulls, visibility graph*/
     robo robot = robo(start, goal);
